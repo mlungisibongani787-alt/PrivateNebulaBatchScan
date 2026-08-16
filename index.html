@@ -1,1228 +1,1343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRIVATE NEBULA WORKSPACE ENGINE</title>
-  <!-- Third-party browser engines -->
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-  <script>
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-    }
-  </script>
-  <style>
-    :root {
-      --nebula-bg: #121418;
-      --nebula-card: #1a1e24;
-      --nebula-green: #00966c;
-      --nebula-yellow: #e2c028;
-      --nebula-orange: #c96b53;
-      --nebula-purple: #8b6ba7;
-      --text: #ffffff;
-      --text-dim: #9ea8b6;
-      --border: #2d3440;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--nebula-bg);
-      color: var(--text);
-      margin: 0;
-      padding: 15px;
-    }
-    .container { max-width: 1500px; margin: 0 auto; }
-    
-    header {
-      border-bottom: 3px solid var(--nebula-green);
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    h1 { margin: 0; font-size: 1.8rem; color: #ffffff; letter-spacing: 1px; }
-    h1 span.green { color: var(--nebula-green); }
-    h1 span.yellow { color: var(--nebula-yellow); }
-    h1 span.orange { color: var(--nebula-orange); }
-    h1 span.purple { color: var(--nebula-purple); }
-    
-    .workspace-nav {
-      display: flex;
-      gap: 10px;
-      background: var(--nebula-card);
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      margin-bottom: 15px;
-    }
-    .ws-btn {
-      flex: 1;
-      background: var(--nebula-bg);
-      color: var(--text-dim);
-      border: 1px solid var(--border);
-      padding: 12px;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-      text-align: center;
-    }
-    .ws-btn.active {
-      background: var(--nebula-green);
-      color: #ffffff;
-      border-color: var(--nebula-green);
-      box-shadow: 0 0 10px rgba(0, 150, 108, 0.4);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PRIVATE NEBULA BATCH SIGNER</title>
 
-    .grid { display: grid; grid-template-columns: 380px 1fr 340px; gap: 20px; }
-    .card { background: var(--nebula-card); padding: 18px; border-radius: 8px; border: 1px solid var(--border); position: relative; }
-    h3 { margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; font-size: 1rem; }
-    h3.green { color: var(--nebula-green); }
-    h3.yellow { color: var(--nebula-yellow); }
-    h3.purple { color: var(--nebula-purple); }
-    
-    label { display: block; margin-top: 8px; font-size: 0.8rem; color: var(--text-dim); }
-    input[type="number"], select, input[type="file"], input[type="text"], textarea {
-      width: 100%; padding: 7px; margin-top: 3px; box-sizing: border-box;
-      background: var(--nebula-bg); border: 1px solid var(--border); color: white; border-radius: 4px; font-size: 0.85rem;
-    }
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.1.15/dist/docx-preview.min.js"></script>
+<script>
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+}
+</script>
 
-    .pad-container { background: #ffffff; border-radius: 4px; margin-top: 6px; position: relative; overflow: hidden; }
-    #drawCanvas { width: 100%; height: 100px; cursor: crosshair; display: block; transform-origin: top left; }
-    
-    .btn-group-sm { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
-    .btn-sm {
-      background: var(--border); color: white; border: none; padding: 6px 10px;
-      border-radius: 3px; cursor: pointer; font-size: 0.75rem; flex: 1; text-align: center;
-    }
-    .btn-sm.danger { background: var(--nebula-orange); }
-    .btn-sm.save { background: var(--nebula-green); }
+<style>
+:root{
+  --nebula-bg:#121418;--nebula-card:#1a1e24;--nebula-green:#00966c;
+  --nebula-yellow:#e2c028;--nebula-orange:#c96b53;--nebula-purple:#8b6ba7;
+  --text:#fff;--text-dim:#9ea8b6;--border:#2d3440;
+}
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:var(--nebula-bg);color:var(--text);margin:0;padding:20px}
+.container{max-width:1450px;margin:0 auto}
+header{border-bottom:3px solid var(--nebula-green);padding-bottom:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font-size:1.8rem;color:#fff;letter-spacing:1px}
+h1 span.green{color:var(--nebula-green)} h1 span.yellow{color:var(--nebula-yellow)}
+h1 span.orange{color:var(--nebula-orange)} h1 span.purple{color:var(--nebula-purple)}
+p.subtitle{margin:4px 0 0;color:var(--text-dim);font-size:.85rem}
+.top-inspection-bar{margin-bottom:15px;display:flex;gap:10px}
+.top-inspection-bar button{background:var(--nebula-yellow);color:#000;border:none;padding:10px 20px;font-weight:bold;border-radius:4px;cursor:pointer;width:100%}
+.grid{display:grid;grid-template-columns:380px minmax(480px,1fr) 340px;gap:20px}
+.card{background:var(--nebula-card);padding:18px;border-radius:8px;border:1px solid var(--border);position:relative}
+h3{margin-top:0;border-bottom:1px solid var(--border);padding-bottom:8px;font-size:1rem}
+h3.green{color:var(--nebula-green)} h3.yellow{color:var(--nebula-yellow)} h3.purple{color:var(--nebula-purple)}
+label{display:block;margin-top:8px;font-size:.8rem;color:var(--text-dim)}
+input[type=number],select,input[type=file],input[type=text]{width:100%;padding:7px;margin-top:3px;box-sizing:border-box;background:var(--nebula-bg);border:1px solid var(--border);color:#fff;border-radius:4px;font-size:.85rem}
+input[type=file]{padding:6px}
+.pad-container{background:#fff;border-radius:4px;margin-top:6px;position:relative;overflow:hidden}
+#drawCanvas{width:100%;height:100px;cursor:crosshair;display:block;transform-origin:top left}
+.btn-group-sm{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.btn-sm{background:var(--border);color:#fff;border:none;padding:5px 10px;border-radius:3px;cursor:pointer;font-size:.75rem;width:auto;flex:1}
+.btn-sm.danger{background:var(--nebula-orange)} .btn-sm.save{background:var(--nebula-green)}
+button.btn-main{background:var(--nebula-green);color:#fff;border:none;padding:12px 20px;border-radius:4px;cursor:pointer;font-weight:bold;width:100%;margin-top:15px;font-size:.95rem}
+button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
+.progress-bar-bg{background:var(--border);height:12px;border-radius:6px;overflow:hidden;margin-top:10px}
+.progress-bar-fill{background:var(--nebula-yellow);height:100%;width:0%;transition:width .2s}
+#log{background:var(--nebula-bg);color:var(--nebula-green);font-family:monospace;padding:10px;height:140px;overflow-y:auto;border-radius:4px;font-size:.75rem;border:1px solid var(--border)}
 
-    button.btn-main {
-      background: var(--nebula-green); color: white; border: none;
-      padding: 12px 20px; border-radius: 4px; cursor: pointer;
-      font-weight: bold; width: 100%; margin-top: 15px; font-size: 0.95rem;
-    }
-    button.btn-main:disabled { background: #3a4454; cursor: not-allowed; color: #888; }
+/* A4 preview viewport */
+.preview-wrapper{
+  position:relative;background:#525659;border:2px solid var(--border);border-radius:4px;
+  width:100%;height:min(78vh,900px);min-height:620px;margin:0 auto;overflow:hidden;
+  user-select:none;box-shadow:0 8px 20px rgba(0,0,0,.6);display:flex;
+  justify-content:center;align-items:center;box-sizing:border-box;
+}
+#pdfCanvas{display:block;background:#fff}
+#docPagesContainer{
+  width:100%;height:100%;overflow:hidden;display:none;position:relative;
+  align-items:center;justify-content:center;background:#525659;
+}
+/* IMPORTANT: do not rewrite Word tables, widths, fonts, margins or line wrapping.
+   docx-preview supplies the document's own geometry. */
+#docPagesContainer .docx-wrapper{
+  position:absolute!important;left:-100000px!important;top:-100000px!important;
+  width:auto!important;height:auto!important;min-height:0!important;
+  padding:0!important;margin:0!important;overflow:visible!important;
+  background:transparent!important;
+}
+#docPagesContainer .docx-source-section{
+  box-sizing:border-box!important;overflow:visible!important;max-height:none!important;
+}
+.word-page-shell{
+  position:absolute;left:50%;top:50%;background:#fff;overflow:hidden;
+  box-shadow:0 0 10px rgba(0,0,0,.45);transform-origin:center center;
+}
+.word-page-shell .word-page-content{
+  position:absolute;left:0;top:0;margin:0;padding:0;
+  transform-origin:top left;overflow:visible;
+}
+.word-page-shell .word-page-content > section{
+  position:static!important;left:auto!important;top:auto!important;
+  margin:0!important;transform:none!important;
+  max-height:none!important;overflow:visible!important;
+}
+.word-preview-badge{
+  position:absolute;left:10px;top:10px;z-index:20;background:rgba(0,0,0,.65);
+  color:#fff;padding:4px 8px;border-radius:4px;font-size:.7rem;pointer-events:none
+}
+.drag-element{
+  position:absolute;border:2px dashed;cursor:grab;display:flex;align-items:center;
+  justify-content:center;font-weight:bold;font-size:.8rem;border-radius:3px;box-sizing:border-box;z-index:30
+}
+#sigDrag{border-color:var(--nebula-yellow);background:rgba(226,192,40,.35);color:#000;width:120px;height:40px;top:550px;left:60px}
+#initDrag{border-color:var(--nebula-purple);background:rgba(139,107,167,.35);color:#000;width:60px;height:25px;top:560px;left:350px;display:none}
+.drag-element::after{content:"⬆";position:absolute;right:-30px;top:50%;transform:translateY(-50%);font-family:Arial,sans-serif;font-size:34px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;z-index:100}
+.signed-word-overlay{position:absolute;z-index:45;pointer-events:none;display:none;align-items:center;justify-content:center;overflow:visible}
+.signed-word-overlay img{display:block;width:100%;height:100%;object-fit:contain}
+.signed-word-overlay.initials{font-weight:700;color:#111;white-space:nowrap}
+.flex-row{display:flex;gap:8px}.flex-row>div{flex:1}
+.nav-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;background:var(--nebula-bg);padding:8px;border-radius:4px;border:1px solid var(--border);flex-wrap:wrap}
+.source-status{margin-top:7px;padding:7px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.75rem}
+.source-status strong{color:var(--nebula-yellow)}
+.upload-note{font-size:.7rem;color:var(--text-dim);margin-top:5px}
+.ai-scanner-panel{margin-top:15px;background:var(--nebula-bg);border:1px solid var(--nebula-orange);border-radius:6px;padding:12px;transition:all .3s}
+.ai-scanner-panel.expanded{position:absolute;top:50px;left:18px;right:18px;bottom:18px;z-index:100;margin-top:0;background:var(--nebula-card);border:2px solid var(--nebula-yellow);box-shadow:0 0 30px rgba(0,0,0,.9);display:flex;flex-direction:column}
+.ai-scanner-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.ai-scanner-header h4{margin:0;color:var(--nebula-yellow);font-size:.95rem;display:flex;align-items:center;gap:6px}
+.ai-results-container{background:#090d12;border:1px solid var(--border);border-radius:4px;max-height:160px;overflow-y:auto;padding:8px;margin-top:8px;font-size:.75rem;flex:1}
+.ai-scanner-panel.expanded .ai-results-container{max-height:none}
+.risk-card{background:rgba(201,107,83,.15);border-left:3px solid var(--nebula-orange);padding:8px 10px;margin-bottom:6px;border-radius:2px}
+.risk-card.highlight{border-left-color:var(--nebula-yellow);background:rgba(226,192,40,.15)}
+.hidden{display:none!important}
+.export-note{margin-top:7px;padding:8px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.72rem;line-height:1.35}
+.export-note strong{color:var(--nebula-yellow)}
+.word-lock{display:none;margin-top:7px;padding:8px 9px;border:1px solid var(--nebula-green);border-radius:4px;background:rgba(0,150,108,.08);color:#cfeee5;font-size:.72rem;line-height:1.35}
 
-    .progress-bar-bg { background: var(--border); height: 12px; border-radius: 6px; overflow: hidden; margin-top: 10px; }
-    .progress-bar-fill { background: var(--nebula-yellow); height: 100%; width: 0%; transition: width 0.2s; }
-    #log {
-      background: var(--nebula-bg); color: var(--nebula-green); font-family: monospace;
-      padding: 10px; height: 140px; overflow-y: auto; border-radius: 4px; font-size: 0.75rem; border: 1px solid var(--border);
-    }
-
-    /* Standard A4 Aspect Ratio Container */
-    .preview-wrapper {
-      position: relative;
-      background: #ffffff;
-      border: 2px solid var(--border);
-      border-radius: 4px;
-      width: 100%;
-      max-width: 480px;
-      height: 678px;
-      margin: 0 auto;
-      overflow: hidden;
-      user-select: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    }
-    #pdfCanvas, #editCanvas { width: 100%; height: 100%; display: block; }
-
-    .drag-element {
-      position: absolute; border: 2px dashed; cursor: move; display: flex;
-      align-items: center; justify-content: center; font-weight: bold;
-      font-size: 0.8rem; border-radius: 3px; box-sizing: border-box; z-index: 10;
-    }
-    #sigDrag { border-color: var(--nebula-yellow); background: rgba(226, 192, 40, 0.35); color: #000; width: 120px; height: 40px; top: 550px; left: 60px; }
-    #initDrag { border-color: var(--nebula-purple); background: rgba(139, 107, 167, 0.35); color: #000; width: 60px; height: 25px; top: 560px; left: 350px; }
-
-    .flex-row { display: flex; gap: 8px; }
-    .flex-row div { flex: 1; }
-
-    .nav-controls {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 10px; background: var(--nebula-bg); padding: 8px; border-radius: 4px; border: 1px solid var(--border);
-    }
-
-    .ai-scanner-panel {
-      margin-top: 15px; background: var(--nebula-bg); border: 1px solid var(--nebula-orange);
-      border-radius: 6px; padding: 12px; transition: all 0.3s ease;
-    }
-    .ai-scanner-panel.expanded {
-      position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; z-index: 100;
-      background: var(--nebula-card); border: 2px solid var(--nebula-yellow); display: flex; flex-direction: column;
-    }
-    .ai-results-container { background: #090d12; border: 1px solid var(--border); border-radius: 4px; max-height: 160px; overflow-y: auto; padding: 8px; margin-top: 8px; font-size: 0.75rem; flex: 1; }
-    .risk-card { background: rgba(201, 107, 83, 0.15); border-left: 3px solid var(--nebula-orange); padding: 8px 10px; margin-bottom: 6px; border-radius: 2px; }
-
-    /* EDIT & CONVERT STYLES */
-    .editor-layout { display: grid; grid-template-columns: 200px 1fr 320px; gap: 15px; height: 750px; }
-    .editor-toolbar {
-      background: var(--nebula-card); padding: 10px; border-radius: 6px; border: 1px solid var(--border);
-      margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-    }
-    .thumb-sidebar { background: var(--nebula-card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; overflow-y: auto; }
-    .props-sidebar { background: var(--nebula-card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; }
-
-    .file-badge {
-      display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;
-      background: var(--nebula-purple); color: #fff; margin-bottom: 8px;
-    }
-    
-    .overlay-item {
-      position: absolute; border: 1px dashed var(--nebula-yellow); padding: 4px; cursor: move; z-index: 20; resize: both; overflow: auto;
-    }
-
-    /* Editable Table Element Styling */
-    .nebula-table {
-      border-collapse: collapse; background: #ffffff; color: #000000; font-size: 0.75rem;
-    }
-    .nebula-table td {
-      border: 1px solid #000000; padding: 4px; min-width: 40px; min-height: 20px; outline: none;
-    }
-  </style>
+@media(max-width:1150px){
+  .grid{grid-template-columns:1fr}
+  .preview-wrapper{height:78vh}
+}
+</style>
 </head>
+
 <body>
-
 <div class="container">
-  <header>
+<header>
+  <div>
+    <h1><span class="green">N</span><span class="yellow">E</span><span class="orange">B</span><span class="purple">U</span><span class="green">L</span><span class="yellow">A</span> BATCH SIGNER</h1>
+    <p class="subtitle">Client-Side Engine | True A4 Preview | PDF &amp; Word Document Signing</p>
+  </div>
+  <div style="font-weight:bold;font-size:.9rem;color:var(--nebula-yellow)">WE CARE</div>
+</header>
+
+<div class="top-inspection-bar">
+  <button type="button" id="inspectBtn" onclick="toggleSignedInspection()" disabled>VIEW SIGNED DOCUMENT</button>
+  <button type="button" id="unsignedBtn" onclick="viewUnsignedDocument()" disabled style="background:var(--nebula-purple);color:#fff">VIEW UNSIGNED DOCUMENT</button>
+</div>
+
+<div class="grid">
+
+<!-- COLUMN 1 -->
+<div class="card">
+  <h3 class="green">1. Source Documents</h3>
+
+  <label for="docSelectMode">Upload Type</label>
+  <select id="docSelectMode" onchange="toggleDocInputMode()">
+    <option value="pdf-single">Single PDF Document</option>
+    <option value="pdf-folder">PDF Folder</option>
+    <option value="word-single">Single Word Document (.DOCX)</option>
+    <option value="word-folder">Word Folder (.DOCX)</option>
+  </select>
+
+  <div id="fileInputContainer" style="margin-top:6px"></div>
+  <div id="sourceStatus" class="source-status"><strong>PDF:</strong> Select one PDF document.</div>
+  <div class="upload-note">PDF and Word uploads are kept separate so the preview and controls always match the selected document type.</div>
+
+  <h3 class="yellow" style="margin-top:18px">2. Signature Options</h3>
+  <label for="sigMode">Signature Source</label>
+  <select id="sigMode" onchange="toggleSigMode()">
+    <option value="upload">Upload PNG / JPG</option>
+    <option value="draw">Draw New Signature</option>
+  </select>
+
+  <div id="uploadBox">
+    <label for="sigImageInput">Signature File</label>
+    <input type="file" id="sigImageInput" accept="image/png,image/jpeg">
+  </div>
+
+  <div id="drawBox" style="display:none">
+    <label>Draw Signature Below</label>
+    <div class="pad-container"><canvas id="drawCanvas" width="300" height="100"></canvas></div>
+    <div class="btn-group-sm">
+      <button type="button" class="btn-sm" onclick="zoomCanvas(1.2)">Zoom In (+)</button>
+      <button type="button" class="btn-sm" onclick="zoomCanvas(.8)">Zoom Out (-)</button>
+      <button type="button" class="btn-sm save" onclick="saveDrawnSignature()">Save Signature</button>
+      <button type="button" class="btn-sm danger" onclick="clearDrawCanvas()">Clear Canvas</button>
+    </div>
+  </div>
+
+  <div class="flex-row" style="margin-top:6px">
+    <div><label for="sigW">Width (px)</label><input type="number" id="sigW" value="120" oninput="resizeSignatureBox()"></div>
+    <div><label for="sigH">Height (px)</label><input type="number" id="sigH" value="40" oninput="resizeSignatureBox()"></div>
+  </div>
+  <div class="btn-group-sm">
+    <button type="button" class="btn-sm" onclick="recenterSignature()">Recenter Signature</button>
+    <button type="button" class="btn-sm danger" onclick="clearSignatureOnly()">Clear Signature</button>
+  </div>
+
+  <h3 class="purple">3. Typed Initials</h3>
+  <label for="initialsText">Initials Text</label>
+  <input type="text" id="initialsText" value="" oninput="updateInitialsLabel()">
+  <div class="flex-row"><div><label for="initFontSize">Font Size (px)</label><input type="number" id="initFontSize" value="14" oninput="resizeInitialsBox()"></div></div>
+  <div class="btn-group-sm">
+    <button type="button" class="btn-sm" onclick="recenterInitials()">Recenter Initials</button>
+    <button type="button" class="btn-sm danger" onclick="clearInitialsOnly()">Clear Initials</button>
+  </div>
+
+  <h3 class="green">4. Placement Rules</h3>
+  <p style="font-size:.75rem;color:var(--nebula-yellow);margin:2px 0 8px">💡 Drag the yellow/purple boxes on the preview to position them.</p>
+
+  <label style="color:var(--nebula-yellow);font-weight:bold">Signature Target Pages</label>
+  <div class="flex-row">
+    <div><label for="sigStartPage">Start Page</label><input type="number" id="sigStartPage" value="1" min="1"></div>
+    <div><label for="sigEndMode">Rule</label>
+      <select id="sigEndMode" onchange="toggleRuleInputs('sig')">
+        <option value="last">Last Page Only</option><option value="all">All Pages</option><option value="specific">Specific Page Number</option>
+      </select>
+    </div>
+  </div>
+  <div id="sigSpecificBox" style="display:none"><label for="sigSpecificPage">Target Page Number</label><input type="number" id="sigSpecificPage" value="1" min="1"></div>
+
+  <label style="color:var(--nebula-purple);font-weight:bold;margin-top:10px">Initials Target Pages</label>
+  <div class="flex-row">
+    <div><label for="initStartPage">Start Page</label><input type="number" id="initStartPage" value="1" min="1"></div>
+    <div><label for="initEndMode">Rule</label>
+      <select id="initEndMode" onchange="toggleRuleInputs('init')">
+        <option value="all">All Pages</option><option value="last">Last Page Only</option><option value="specific">Specific Page Number</option>
+      </select>
+    </div>
+  </div>
+  <div id="initSpecificBox" style="display:none"><label for="initSpecificPage">Target Page Number</label><input type="number" id="initSpecificPage" value="1" min="1"></div>
+  <div class="export-note" style="margin-top:10px"><strong>Word protection:</strong> Word signing is locked to the original DOCX package. The body is never reconstructed or reflowed. The signature/initials are added as floating footer overlays so existing lines, fonts, tables and page breaks are not rewritten.</div>
+
+  <button type="button" id="startBtn" class="btn-main" onclick="processBatch()">START BATCH PROCESSING</button>
+  <button type="button" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearBatchOutputOnly()">CLEAR BATCH OUTPUT</button>
+</div>
+
+<!-- COLUMN 2 -->
+<div class="card" id="middleCard" style="display:flex;flex-direction:column;min-width:0">
+  <h3 class="yellow" id="previewTitle">A4 PDF Document Preview</h3>
+  <div class="preview-wrapper" id="previewWrapper">
+    <canvas id="pdfCanvas"></canvas>
+    <div id="docPagesContainer"></div>
+    <div id="wordPreviewBadge" class="word-preview-badge hidden">WORD • A4 PAGE</div>
+    <div id="sigDrag" class="drag-element">Signature</div>
+    <div id="initDrag" class="drag-element"></div>
+    <div id="signedSigOverlay" class="signed-word-overlay"></div>
+    <div id="signedInitOverlay" class="signed-word-overlay initials"></div>
+  </div>
+
+  <div class="nav-controls">
     <div>
-      <h1>
-        <span class="green">N</span><span class="yellow">E</span><span class="orange">B</span><span class="purple">U</span><span class="green">L</span><span class="yellow">A</span> 
-        WORKSPACE ENGINE
-      </h1>
-      <p class="subtitle">Client-Side Document Suite | Signing, Advanced Editing &amp; Batch Conversion</p>
+      <button type="button" class="btn-sm" onclick="prevDocument()">◄ Prev File</button>
+      <button type="button" class="btn-sm" onclick="nextDocument()">Next File ►</button>
     </div>
-    <div style="font-weight: bold; font-size: 0.9rem; color: var(--nebula-yellow);">WE CARE</div>
-  </header>
-
-  <!-- WORKSPACE NAV SWITCHER -->
-  <div class="workspace-nav">
-    <button class="ws-btn active" id="wsBtnSign" onclick="switchWorkspace('signing')">✍️ SIGNING WORKSPACE</button>
-    <button class="ws-btn" id="wsBtnEdit" onclick="switchWorkspace('edit')">📝 ADVANCED EDIT WORKSPACE</button>
-    <button class="ws-btn" id="wsBtnConvert" onclick="switchWorkspace('convert')">🔄 CONVERT &amp; BATCH WORKSPACE</button>
+    <div style="font-size:.8rem;color:var(--text-dim)" id="navFileTracker">File 0 / 0</div>
+    <div>
+      <button type="button" class="btn-sm" onclick="prevPage()">◄ Prev Page</button>
+      <button type="button" class="btn-sm" onclick="nextPage()">Next Page ►</button>
+    </div>
+    <div style="font-size:.8rem;color:var(--text-dim)" id="navPageTracker">Page 1 / 1</div>
   </div>
 
-  <!-- WORKSPACE 1: SIGNING WORKSPACE -->
-  <div id="signingWorkspace">
-    <div class="grid">
-      <div class="card">
-        <h3 class="green">1. Source Documents</h3>
-        <label for="docSelectMode">Upload Mode</label>
-        <select id="docSelectMode" onchange="toggleDocInputMode()">
-          <option value="folder">Select Entire Folder</option>
-          <option value="files">Select Files (PDF &amp; Word)</option>
-        </select>
-        
-        <div id="fileInputContainer" style="margin-top:6px;">
-          <input type="file" id="folderInput" webkitdirectory directory multiple>
-        </div>
-
-        <h3 class="yellow">2. Signature Options</h3>
-        <label for="sigMode">Signature Source</label>
-        <select id="sigMode" onchange="toggleSigMode()">
-          <option value="upload">Upload PNG / JPG</option>
-          <option value="draw">Draw New Signature</option>
-        </select>
-
-        <div id="uploadBox">
-          <label for="sigImageInput">Signature File</label>
-          <input type="file" id="sigImageInput" accept="image/png, image/jpeg">
-        </div>
-
-        <div id="drawBox" style="display:none;">
-          <label>Draw Signature Below</label>
-          <div class="pad-container">
-            <canvas id="drawCanvas" width="300" height="100"></canvas>
-          </div>
-          <div class="btn-group-sm">
-            <button type="button" class="btn-sm" onclick="zoomCanvas(1.2)">Zoom In (+)</button>
-            <button type="button" class="btn-sm" onclick="zoomCanvas(0.8)">Zoom Out (-)</button>
-            <button type="button" class="btn-sm save" onclick="saveDrawnSignature()">Save Signature</button>
-            <button type="button" class="btn-sm danger" onclick="clearDrawCanvas()">Clear Canvas</button>
-          </div>
-        </div>
-        
-        <div class="flex-row" style="margin-top:6px;">
-          <div><label for="sigW">Width (px)</label><input type="number" id="sigW" value="120" oninput="resizeSignatureBox()"></div>
-          <div><label for="sigH">Height (px)</label><input type="number" id="sigH" value="40" oninput="resizeSignatureBox()"></div>
-        </div>
-        <div class="btn-group-sm">
-          <button type="button" class="btn-sm" onclick="recenterSignature()">Recenter Signature</button>
-          <button type="button" class="btn-sm danger" onclick="clearSignatureOnly()">Clear Signature</button>
-        </div>
-
-        <h3 class="purple">3. Typed Initials</h3>
-        <label for="initialsText">Initials Text</label>
-        <input type="text" id="initialsText" value="" placeholder="Type initials..." oninput="updateInitialsLabel()">
-        <div class="flex-row">
-          <div><label for="initFontSize">Font Size (px)</label><input type="number" id="initFontSize" value="14" oninput="resizeInitialsBox()"></div>
-        </div>
-        <div class="btn-group-sm">
-          <button type="button" class="btn-sm" onclick="recenterInitials()">Recenter Initials</button>
-          <button type="button" class="btn-sm danger" onclick="clearInitialsOnly()">Clear Initials</button>
-        </div>
-
-        <h3 class="green">4. Placement Rules</h3>
-        <label style="color:var(--nebula-yellow); font-weight:bold;">Signature Target Pages</label>
-        <div class="flex-row">
-          <div><label for="sigStartPage">Start Page</label><input type="number" id="sigStartPage" value="1" min="1"></div>
-          <div>
-            <label for="sigEndMode">Rule</label>
-            <select id="sigEndMode" onchange="toggleRuleInputs('sig')">
-              <option value="last">Last Page Only</option>
-              <option value="all">All Pages</option>
-              <option value="specific">Specific Page Number</option>
-            </select>
-          </div>
-        </div>
-        <div id="sigSpecificBox" style="display:none;">
-          <label for="sigSpecificPage">Target Page Number</label>
-          <input type="number" id="sigSpecificPage" value="1" min="1">
-        </div>
-
-        <label style="color:var(--nebula-purple); font-weight:bold; margin-top:10px;">Initials Target Pages</label>
-        <div class="flex-row">
-          <div><label for="initStartPage">Start Page</label><input type="number" id="initStartPage" value="1" min="1"></div>
-          <div>
-            <label for="initEndMode">Rule</label>
-            <select id="initEndMode" onchange="toggleRuleInputs('init')">
-              <option value="all">All Pages</option>
-              <option value="last">Last Page Only</option>
-              <option value="specific">Specific Page Number</option>
-            </select>
-          </div>
-        </div>
-        <div id="initSpecificBox" style="display:none;">
-          <label for="initSpecificPage">Target Page Number</label>
-          <input type="number" id="initSpecificPage" value="1" min="1">
-        </div>
-
-        <button type="button" id="startBtn" class="btn-main" onclick="processBatch()">START BATCH PROCESSING</button>
-      </div>
-
-      <div class="card" id="middleCard" style="display:flex; flex-direction:column;">
-        <h3 class="yellow">Full A4 Document Preview</h3>
-        <div class="preview-wrapper" id="previewWrapper">
-          <canvas id="pdfCanvas"></canvas>
-          <div id="sigDrag" class="drag-element" style="display:none;">Signature</div>
-          <div id="initDrag" class="drag-element" style="display:none;">Initials</div>
-        </div>
-
-        <div class="nav-controls">
-          <div>
-            <button type="button" class="btn-sm" onclick="prevDocument()">◄ Prev File</button>
-            <button type="button" class="btn-sm" onclick="nextDocument()">Next File ►</button>
-          </div>
-          <div style="font-size:0.8rem; color:var(--text-dim);" id="navFileTracker">File 0 / 0</div>
-          <div>
-            <button type="button" class="btn-sm" onclick="prevPage()">◄ Prev Page</button>
-            <button type="button" class="btn-sm" onclick="nextPage()">Next Page ►</button>
-          </div>
-          <div style="font-size:0.8rem; color:var(--text-dim);" id="navPageTracker">Page 1 / 1</div>
-        </div>
-
-        <div class="ai-scanner-panel" id="aiPanel">
-          <div class="ai-scanner-header">
-            <h4>🤖 Mr AUDIT ASSISTANT</h4>
-            <div>
-              <button type="button" id="expandAiBtn" class="btn-sm" style="background:var(--nebula-yellow); color:#000; font-weight:bold; padding:2px 8px;" onclick="toggleAiPanelSize()">Increase View ⤢</button>
-              <button type="button" class="btn-sm danger" style="padding:2px 6px;" onclick="clearAiScanResults()">Clear AI Scan</button>
-            </div>
-          </div>
-
-          <div class="flex-row">
-            <div>
-              <label for="aiCategorySelect" style="margin-top:0;">Search Categories (Hold Ctrl to pick multiple)</label>
-              <select id="aiCategorySelect" multiple style="height:60px;">
-                <option value="amount" selected>Financial Amounts &amp; Currency (R/$)</option>
-                <option value="date" selected>Due Dates &amp; Expiration Clauses</option>
-                <option value="legal" selected>Legal Liabilities &amp; Penalties</option>
-              </select>
-            </div>
-            <div>
-              <label for="aiCustomPrompt" style="margin-top:0;">Custom Prompt Query</label>
-              <input type="text" id="aiCustomPrompt" placeholder="Ask AI e.g. Find invoice total or student no...">
-            </div>
-          </div>
-
-          <div class="btn-group-sm" style="margin-top:8px;">
-            <button type="button" class="btn-sm" style="background:var(--nebula-orange); font-weight:bold;" onclick="runAiHighRiskScan()">SEARCH HIGH ALERT RISKS</button>
-            <button type="button" class="btn-sm" style="background:var(--nebula-purple); font-weight:bold;" onclick="executeAiCustomQuery()">RUN AI PROMPT QUERY</button>
-          </div>
-
-          <div id="aiResultsBox" class="ai-results-container">
-            Awaiting AI scan... Click "Search High Alert Risks" or enter a query above.
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 class="green">Batch Status</h3>
-        <div>Detected: <strong id="countDetected">0</strong></div>
-        <div>Completed: <strong id="countCompleted" style="color:var(--nebula-green)">0</strong></div>
-        <div>Failed: <strong id="countFailed" style="color:var(--nebula-orange)">0</strong></div>
-
-        <div class="progress-bar-bg">
-          <div id="progressFill" class="progress-bar-fill"></div>
-        </div>
-        <p id="statusText" style="font-size:0.8rem; color:var(--text-dim);">Awaiting documents...</p>
-
-        <h3 class="purple">Processing Log</h3>
-        <div id="log">--- Ready ---<br></div>
-
-        <!-- RESTORED SIGNING BUTTON LAYOUT ORDER -->
-        <button type="button" id="downloadBtn" class="btn-main" style="background:var(--nebula-yellow); color:#000;" onclick="downloadZip()" disabled>DOWNLOAD SIGNED ZIP</button>
-        <button type="button" class="btn-main" style="background:var(--nebula-orange); margin-top:8px;" onclick="clearBatchOutputOnly()">CLEAR BATCH OUTPUT</button>
-        <button type="button" class="btn-sm" style="background:var(--nebula-green); font-weight:bold; width:100%; margin-top:8px; padding:10px;" onclick="printSigningDocument()">🖨️ PRINT SIGNED DOCUMENT</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- WORKSPACE 2: ADVANCED EDIT WORKSPACE -->
-  <div id="editWorkspace" style="display:none;">
-    <div class="editor-toolbar">
-      <input type="file" id="editFileInput" accept=".pdf,.docx,.doc,.txt" onchange="handleEditFileSelect(event)" style="width:200px; padding:3px;">
-      
-      <!-- UNDO / REDO CONTROLS -->
-      <button class="btn-sm" onclick="undoEditorAction()">↩️ Undo</button>
-      <button class="btn-sm" onclick="redoEditorAction()">↪️ Redo</button>
-
-      <button class="btn-sm" onclick="addTextOverlayToCanvas()">➕ Insert Text</button>
-      
-      <!-- SHAPES DROPDOWN MENU -->
-      <select id="shapeSelectType" style="width:110px; padding:3px; margin:0;">
-        <option value="rect">⬛ Rectangle</option>
-        <option value="round_rect">▢ Rounded Box</option>
-        <option value="circle">⚪ Circle / Ellipse</option>
-        <option value="line">➖ Line / Arrow</option>
-        <option value="callout">💬 Speech Bubble</option>
-      </select>
-      <button class="btn-sm danger" onclick="addSelectedShapeToCanvas()">📐 Insert Shape</button>
-
-      <!-- HIGHLIGHTER WITH COLOR SELECTION -->
-      <input type="color" id="highlightColorPicker" value="#e2c028" style="width:30px; height:26px; padding:0; border:none; cursor:pointer;" title="Highlight Color">
-      <button class="btn-sm" style="background:var(--nebula-yellow); color:#000;" onclick="addResizableHighlightBox()">🖍️ Resizable Highlight</button>
-
-      <!-- TABLE BUILDER -->
-      <button class="btn-sm" style="background:var(--nebula-purple);" onclick="addTableToCanvas()">📊 Insert Table (2x2)</button>
-
-      <div style="flex:1;"></div>
-
-      <label style="margin:0; font-size:0.75rem;">Export As:</label>
-      <select id="editSaveFormat" style="width:100px; padding:3px; margin:0;">
-        <option value="pdf">PDF (.pdf)</option>
-        <option value="docx">Word (.docx)</option>
-        <option value="txt">Text (.txt)</option>
-      </select>
-
-      <button class="btn-sm save" onclick="exportEditedDocument()">💾 Download Edited</button>
-      <button class="btn-sm" style="background:var(--nebula-green); font-weight:bold;" onclick="printEditWorkspaceDocument()">🖨️ Print</button>
-    </div>
-
-    <!-- Edit Navigation Controls -->
-    <div class="nav-controls" style="margin-bottom:10px;">
+  <div class="ai-scanner-panel" id="aiPanel">
+    <div class="ai-scanner-header">
+      <h4>🤖 Mr AUDIT ASSISTANT</h4>
       <div>
-        <button type="button" class="btn-sm" onclick="prevEditFile()">◄ Prev File</button>
-        <button type="button" class="btn-sm" onclick="nextEditFile()">Next File ►</button>
+        <button type="button" id="expandAiBtn" class="btn-sm" style="background:var(--nebula-yellow);color:#000;font-weight:bold;padding:2px 8px" onclick="toggleAiPanelSize()">Increase View ⤢</button>
+        <button type="button" class="btn-sm danger" style="padding:2px 6px" onclick="clearAiScanResults()">Clear AI Scan</button>
       </div>
-      <div style="font-size:0.8rem; color:var(--text-dim);" id="editFileTracker">File 0 / 0</div>
+    </div>
+    <div class="flex-row">
       <div>
-        <button type="button" class="btn-sm" onclick="prevEditPage()">◄ Prev Page</button>
-        <button type="button" class="btn-sm" onclick="nextEditPage()">Next Page ►</button>
-      </div>
-      <div style="font-size:0.8rem; color:var(--text-dim);" id="editPageTracker">Page 1 / 1</div>
-    </div>
-
-    <div class="editor-layout">
-      <div class="thumb-sidebar">
-        <h4 style="margin-top:0; color:var(--nebula-yellow); font-size:0.85rem;">Page Thumbnails</h4>
-        <div id="thumbnailContainer">Upload document to view thumbnails.</div>
-      </div>
-
-      <div class="preview-wrapper" id="editPreviewWrapper" onclick="placeActiveOverlayByClick(event)">
-        <canvas id="editCanvas"></canvas>
-        <div id="overlayLayer"></div>
-      </div>
-
-      <div class="props-sidebar">
-        <h4 style="margin-top:0; color:var(--nebula-purple); font-size:0.85rem;">Text &amp; Object Styling</h4>
-        <div id="detectedFormatBadge" class="file-badge">PDF Document Detected</div>
-        
-        <label>Selected Text / Cell Content</label>
-        <textarea id="propTextVal" rows="3" oninput="updateActiveOverlayProps()">Click on page to place or edit text...</textarea>
-        
-        <label>Font Family</label>
-        <select id="propFontFamily" onchange="updateActiveOverlayProps()">
-          <option value="Calibri">Calibri</option>
-          <option value="Calibri-Light">Calibri Light</option>
-          <option value="Helvetica">Helvetica / Arial</option>
-          <option value="Times-Roman">Times New Roman</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Verdana">Verdana</option>
-          <option value="Trebuchet MS">Trebuchet MS</option>
-          <option value="Garamond">Garamond</option>
-          <option value="Courier">Courier / Monospace</option>
-          <option value="Comic Sans MS">Comic Sans MS</option>
-          <option value="Impact">Impact</option>
+        <label for="aiCategorySelect" style="margin-top:0">Search Category</label>
+        <select id="aiCategorySelect">
+          <option value="all">High Risk &amp; Amounts (Auto Scan)</option>
+          <option value="amount">Financial Amounts &amp; Currency (R/$)</option>
+          <option value="date">Due Dates &amp; Expiration Clauses</option>
+          <option value="legal">Legal Liabilities &amp; Penalties</option>
         </select>
-
-        <div class="flex-row">
-          <div><label>Font Size (px)</label><input type="number" id="propFontSize" value="16" oninput="updateActiveOverlayProps()"></div>
-          <div><label>Text Color</label><input type="color" id="propColor" value="#00966c" oninput="updateActiveOverlayProps()"></div>
-        </div>
-
-        <button class="btn-sm danger" style="margin-top:15px; width:100%;" onclick="clearActiveOverlay()">Clear Selected Overlay</button>
+      </div>
+      <div>
+        <label for="aiCustomPrompt" style="margin-top:0">Custom Prompt Query</label>
+        <input type="text" id="aiCustomPrompt" placeholder="Ask AI e.g. Find invoice total or student no...">
       </div>
     </div>
-  </div>
-
-  <!-- WORKSPACE 3: CONVERT & BATCH WORKSPACE -->
-  <div id="convertWorkspace" style="display:none;">
-    <div class="card" style="max-width:900px; margin:0 auto;">
-      <h3 class="yellow">Batch Document Converter</h3>
-      <p style="font-size:0.85rem; color:var(--text-dim);">Upload files or entire folders to transform formats across PDF, Word, PowerPoint, and Text.</p>
-      
-      <label for="convertUploadInput">1. Upload File or Folder to Convert</label>
-      <input type="file" id="convertUploadInput" multiple onchange="handleConvertUpload(event)">
-
-      <div style="margin-top:10px;">
-        <strong>Uploaded Document Detection:</strong>
-        <div id="convertDetectedList" style="background:#090d12; border:1px solid var(--border); padding:8px; margin-top:4px; max-height:120px; overflow-y:auto; font-size:0.8rem;">
-          No files uploaded yet.
-        </div>
-      </div>
-
-      <div class="nav-controls" style="margin-top:10px;">
-        <div>
-          <button type="button" class="btn-sm" onclick="prevConvertFile()">◄ Prev File</button>
-          <button type="button" class="btn-sm" onclick="nextConvertFile()">Next File ►</button>
-        </div>
-        <div style="font-size:0.8rem; color:var(--text-dim);" id="convertFileTracker">File 0 / 0</div>
-      </div>
-
-      <label for="convertTargetFormat" style="margin-top:15px;">2. Select Conversion Target Format</label>
-      <select id="convertTargetFormat">
-        <option value="pdf">Convert to PDF Document (.pdf)</option>
-        <option value="docx">Convert to Microsoft Word (.docx)</option>
-        <option value="pptx">Convert to Microsoft PowerPoint (.pptx)</option>
-        <option value="txt">Convert to Plain Text (.txt)</option>
-      </select>
-
-      <button type="button" class="btn-main" style="background:var(--nebula-purple);" onclick="executeWorkspaceBatchConversion()">START CONVERSION PROCESS</button>
-
-      <div class="progress-bar-bg" style="margin-top:20px;">
-        <div id="convertProgressFill" class="progress-bar-fill"></div>
-      </div>
-      <p id="convertStatusText" style="font-size:0.85rem; color:var(--text-dim); text-align:center;">Awaiting files...</p>
-
-      <div class="flex-row" style="margin-top:15px;">
-        <button type="button" id="convertDownloadBtn" class="btn-main" style="background:var(--nebula-yellow); color:#000; margin-top:0;" onclick="downloadConvertedOutput()" disabled>SAVE / DOWNLOAD CONVERTED FILE</button>
-        <button type="button" class="btn-main" style="background:var(--nebula-green); margin-top:0;" onclick="printConvertedDocument()">🖨️ PRINT CONVERTED FILE</button>
-      </div>
+    <div class="btn-group-sm" style="margin-top:8px">
+      <button type="button" class="btn-sm" style="background:var(--nebula-orange);font-weight:bold" onclick="runAiHighRiskScan()">SEARCH HIGH ALERT RISKS</button>
+      <button type="button" class="btn-sm" style="background:var(--nebula-purple);font-weight:bold" onclick="executeAiCustomQuery()">RUN AI PROMPT QUERY</button>
     </div>
+    <div id="aiResultsBox" class="ai-results-container">Awaiting AI scan...</div>
   </div>
 </div>
 
+<!-- COLUMN 3 -->
+<div class="card">
+  <h3 class="green">Batch Status</h3>
+  <div>Detected: <strong id="countDetected">0</strong></div>
+  <div>Completed: <strong id="countCompleted" style="color:var(--nebula-green)">0</strong></div>
+  <div>Failed: <strong id="countFailed" style="color:var(--nebula-orange)">0</strong></div>
+  <div class="progress-bar-bg"><div id="progressFill" class="progress-bar-fill"></div></div>
+  <p id="statusText" style="font-size:.8rem;color:var(--text-dim)">Awaiting documents...</p>
+  <h3 class="purple">Processing Log</h3>
+  <div id="log">--- Ready ---<br></div>
+  <button type="button" id="downloadBtn" class="btn-main" style="background:var(--nebula-yellow);color:#000" onclick="downloadSignedOutput()" disabled>DOWNLOAD SIGNED FILE</button>
+  <button type="button" id="clearDownloadBtn" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearDownloadedOutput()">CLEAR DOWNLOADED / GENERATED OUTPUT</button>
+  <div id="exportNote" class="export-note"><strong>Export rule:</strong> A single upload always downloads as one file. A folder upload is the only mode that downloads a ZIP. Word files are kept as the original DOCX package and only the signature/initials overlay is added.</div>
+  <div class="word-lock" id="wordLockNotice"><strong>WORD LOCK:</strong> The original DOCX body is never rebuilt from extracted text. Fonts, lines, tables, spacing and existing page structure are left untouched. Only signature/initials drawing objects are added.</div>
+</div>
+</div>
+</div>
+
 <script>
-  // Global System Memory
-  let selectedFiles = [];
-  let currentFileIndex = 0;
-  let currentNumPage = 1;
-  let totalPdfPages = 1;
+"use strict";
 
-  let sigImageBytes = null;
-  let currentPdfPage = null;
-  let loadedPdfDoc = null;
-  let zip = new JSZip();
+/* ---------- STATE ---------- */
+let selectedFiles=[];
+let currentFileIndex=0;
+let currentNumPage=1;
+let totalPdfPages=1;
+let sigImageBytes=null;
+let currentPdfPage=null;
+let pdfViewport=null;
+let loadedPdfDoc=null;
+let signedPdfBlobs={};
+let zip=new JSZip();
+let inspectingSignedMode=false;
+let currentSourceType="pdf";
+let signedPreviewMode=false;
+let signedOverlaySigUrl=null;
+let signedPreviewFileName="";
+let wordPageModels=[];
 
-  // Convert Workspace Specifics
-  let convertFiles = [];
-  let convertFileIndex = 0;
-  let convertedBlobs = {};
+const A4_W=794;
+const A4_H=1123;
 
-  // Edit Workspace Specifics & History Stacks
-  let editFiles = [];
-  let editFileIndex = 0;
-  let editPageNum = 1;
-  let editTotalPages = 1;
-  let loadedEditPdfDoc = null;
-  let textOverlays = [];
+/* ---------- DRAW SIGNATURE ---------- */
+const drawCanvas=document.getElementById("drawCanvas");
+const dCtx=drawCanvas.getContext("2d");
+let drawing=false,canvasZoomScale=1;
+dCtx.strokeStyle="#000";dCtx.lineWidth=2.5;dCtx.lineCap="round";dCtx.lineJoin="round";
 
-  let undoHistoryStack = [];
-  let redoHistoryStack = [];
+drawCanvas.addEventListener("mousedown",e=>{
+  drawing=true;dCtx.beginPath();
+  dCtx.moveTo(e.offsetX/canvasZoomScale,e.offsetY/canvasZoomScale);
+});
+drawCanvas.addEventListener("mousemove",e=>{
+  if(!drawing)return;
+  dCtx.lineTo(e.offsetX/canvasZoomScale,e.offsetY/canvasZoomScale);dCtx.stroke();
+});
+["mouseup","mouseleave"].forEach(ev=>drawCanvas.addEventListener(ev,()=>drawing=false));
 
-  function pushStateToUndoHistory() {
-    const currentState = document.getElementById('overlayLayer').innerHTML;
-    undoHistoryStack.push(currentState);
-    redoHistoryStack = [];
+function zoomCanvas(f){
+  canvasZoomScale=Math.max(.5,Math.min(3,canvasZoomScale*f));
+  drawCanvas.style.transform=`scale(${canvasZoomScale})`;
+}
+function clearDrawCanvas(){
+  dCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);
+  sigImageBytes=null;canvasZoomScale=1;drawCanvas.style.transform="scale(1)";
+}
+async function saveDrawnSignature(){
+  sigImageBytes=await (await fetch(drawCanvas.toDataURL("image/png"))).arrayBuffer();
+  document.getElementById("sigDrag").style.display="flex";
+  document.getElementById("drawBox").style.display="none";
+  logMessage("Signature drawn and saved successfully.");
+}
+function clearSignatureOnly(){
+  clearDrawCanvas();document.getElementById("sigImageInput").value="";
+  document.getElementById("sigDrag").style.display="none";logMessage("Signature cleared.");
+}
+function clearInitialsOnly(){
+  document.getElementById("initialsText").value="";
+  document.getElementById("initDrag").innerText="";
+  document.getElementById("initDrag").style.display="none";
+  logMessage("Initials cleared.");
+}
+function recenterSignature(){
+  const e=document.getElementById("sigDrag");e.style.left="60px";e.style.top="550px";e.style.display="flex";
+}
+function recenterInitials(){
+  const e=document.getElementById("initDrag");e.style.left="350px";e.style.top="560px";
+  if(document.getElementById("initialsText").value.trim())e.style.display="flex";
+}
+function resizeSignatureBox(){
+  const e=document.getElementById("sigDrag");
+  e.style.width=Math.max(10,Number(document.getElementById("sigW").value)||120)+"px";
+  e.style.height=Math.max(10,Number(document.getElementById("sigH").value)||40)+"px";
+}
+function resizeInitialsBox(){
+  document.getElementById("initDrag").style.fontSize=(Number(document.getElementById("initFontSize").value)||14)+"px";
+}
+function updateInitialsLabel(){
+  const v=document.getElementById("initialsText").value;
+  const e=document.getElementById("initDrag");e.innerText=v;e.style.display=v.trim()?"flex":"none";
+}
+
+/* ---------- UPLOAD MODE ---------- */
+function toggleDocInputMode(){
+  const mode=document.getElementById("docSelectMode").value;
+  const container=document.getElementById("fileInputContainer");
+  container.innerHTML="";
+  const input=document.createElement("input");
+  input.type="file";input.id="sourceFileInput";input.multiple=false;
+
+  let label="",accept="",isFolder=false,type="";
+  if(mode==="pdf-single"){label="Select ONE PDF";accept=".pdf,application/pdf";type="pdf";}
+  if(mode==="pdf-folder"){label="Select PDF Folder";accept=".pdf,application/pdf";isFolder=true;type="pdf";}
+  if(mode==="word-single"){label="Select ONE Word Document";accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";type="word";}
+  if(mode==="word-folder"){label="Select Word Folder";accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";isFolder=true;type="word";}
+
+  if(isFolder){
+    input.multiple=true;
+    input.setAttribute("webkitdirectory","");
+    input.setAttribute("directory","");
+  }else{
+    input.multiple=false;
+    input.setAttribute("accept",accept);
   }
+  input.addEventListener("change",handleFileSelection);
+  container.appendChild(input);
 
-  function undoEditorAction() {
-    if (undoHistoryStack.length === 0) return;
-    const currentState = document.getElementById('overlayLayer').innerHTML;
-    redoHistoryStack.push(currentState);
-    const prevState = undoHistoryStack.pop();
-    document.getElementById('overlayLayer').innerHTML = prevState;
-  }
+  currentSourceType=type;
+  document.getElementById("sourceStatus").innerHTML =
+    type==="pdf"
+    ? `<strong>PDF mode:</strong> ${isFolder?"PDF folder selected":"Single PDF selected"}. PDF preview and page navigation are active.`
+    : `<strong>Word mode:</strong> ${isFolder?"Word folder selected":"Single Word selected"}. Word is rendered in a locked, paginated preview without rewriting the source document. <span style="color:var(--nebula-green)">Source DOCX remains locked; signing adds only floating signature/initials objects.</span>`;
 
-  function redoEditorAction() {
-    if (redoHistoryStack.length === 0) return;
-    const currentState = document.getElementById('overlayLayer').innerHTML;
-    undoHistoryStack.push(currentState);
-    const nextState = redoHistoryStack.pop();
-    document.getElementById('overlayLayer').innerHTML = nextState;
-  }
-
-  // Workspace Nav Switcher
-  function switchWorkspace(wsName) {
-    document.getElementById('signingWorkspace').style.display = wsName === 'signing' ? 'block' : 'none';
-    document.getElementById('editWorkspace').style.display = wsName === 'edit' ? 'block' : 'none';
-    document.getElementById('convertWorkspace').style.display = wsName === 'convert' ? 'block' : 'none';
-
-    document.getElementById('wsBtnSign').classList.toggle('active', wsName === 'signing');
-    document.getElementById('wsBtnEdit').classList.toggle('active', wsName === 'edit');
-    document.getElementById('wsBtnConvert').classList.toggle('active', wsName === 'convert');
-
-    if (wsName === 'edit' && editFiles.length > 0) {
-      renderEditCanvasPage();
-    }
-  }
-
-  // --- WORKSPACE 1: SIGNING ENGINE ---
-  const drawCanvas = document.getElementById('drawCanvas');
-  const dCtx = drawCanvas.getContext('2d');
-  let drawing = false;
-  let canvasZoomScale = 1.0;
-
-  dCtx.strokeStyle = "#000000";
-  dCtx.lineWidth = 2.5;
-
-  drawCanvas.addEventListener('mousedown', (e) => { drawing = true; dCtx.beginPath(); dCtx.moveTo(e.offsetX / canvasZoomScale, e.offsetY / canvasZoomScale); });
-  drawCanvas.addEventListener('mousemove', (e) => { if(drawing) { dCtx.lineTo(e.offsetX / canvasZoomScale, e.offsetY / canvasZoomScale); dCtx.stroke(); } });
-  drawCanvas.addEventListener('mouseup', () => { drawing = false; });
-
-  function zoomCanvas(factor) {
-    canvasZoomScale *= factor;
-    drawCanvas.style.transform = `scale(${canvasZoomScale})`;
-  }
-
-  function clearDrawCanvas() {
-    dCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    sigImageBytes = null;
-    canvasZoomScale = 1.0;
-    drawCanvas.style.transform = `scale(1.0)`;
-  }
-
-  function saveDrawnSignature() {
-    const dataUrl = drawCanvas.toDataURL('image/png');
-    fetch(dataUrl).then(res => res.arrayBuffer()).then(buf => {
-      sigImageBytes = buf;
-      document.getElementById('sigDrag').style.display = 'flex';
-      document.getElementById('drawBox').style.display = 'none';
-      logMessage("Signature drawn and saved successfully.");
-    });
-  }
-
-  function clearSignatureOnly() {
-    clearDrawCanvas();
-    document.getElementById('sigImageInput').value = '';
-    document.getElementById('sigDrag').style.display = 'none';
-    logMessage("Signature cleared.");
-  }
-
-  function clearInitialsOnly() {
-    document.getElementById('initialsText').value = '';
-    document.getElementById('initDrag').innerText = '';
-    document.getElementById('initDrag').style.display = 'none';
-    logMessage("Initials cleared.");
-  }
-
-  function recenterSignature() {
-    const sigDrag = document.getElementById('sigDrag');
-    sigDrag.style.top = "550px";
-    sigDrag.style.left = "60px";
-    sigDrag.style.display = "flex";
-  }
-
-  function recenterInitials() {
-    const initDrag = document.getElementById('initDrag');
-    initDrag.style.top = "560px";
-    initDrag.style.left = "350px";
-    initDrag.style.display = "flex";
-  }
-
-  function resizeSignatureBox() {
-    const w = document.getElementById('sigW').value;
-    const h = document.getElementById('sigH').value;
-    const sigDrag = document.getElementById('sigDrag');
-    sigDrag.style.width = w + "px";
-    sigDrag.style.height = h + "px";
-  }
-
-  function resizeInitialsBox() {
-    const size = document.getElementById('initFontSize').value;
-    const initDrag = document.getElementById('initDrag');
-    initDrag.style.fontSize = size + "px";
-  }
-
-  function toggleRuleInputs(type) {
-    if (type === 'sig') {
-      const mode = document.getElementById('sigEndMode').value;
-      document.getElementById('sigSpecificBox').style.display = mode === 'specific' ? 'block' : 'none';
-    } else {
-      const mode = document.getElementById('initEndMode').value;
-      document.getElementById('initSpecificBox').style.display = mode === 'specific' ? 'block' : 'none';
-    }
-  }
-
-  function toggleAiPanelSize() {
-    const panel = document.getElementById('aiPanel');
-    panel.classList.toggle('expanded');
-  }
-
-  function clearBatchOutputOnly() {
-    zip = new JSZip();
-    document.getElementById('countCompleted').innerText = '0';
-    document.getElementById('countFailed').innerText = '0';
-    document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('downloadBtn').disabled = true;
-    document.getElementById('statusText').innerText = "Cleared output.";
-    logMessage("Cleared signed batch output.");
-  }
-
-  function toggleSigMode() {
-    const mode = document.getElementById('sigMode').value;
-    document.getElementById('uploadBox').style.display = mode === 'upload' ? 'block' : 'none';
-    document.getElementById('drawBox').style.display = mode === 'draw' ? 'block' : 'none';
-  }
-
-  function toggleDocInputMode() {
-    const mode = document.getElementById('docSelectMode').value;
-    const container = document.getElementById('fileInputContainer');
-    container.innerHTML = '';
-
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.id = 'folderInput';
-
-    if (mode === 'folder') {
-      input.setAttribute('webkitdirectory', '');
-      input.setAttribute('directory', '');
-      input.setAttribute('multiple', '');
-    } else {
-      input.setAttribute('accept', '.pdf,.docx,.doc');
-      input.setAttribute('multiple', '');
-    }
-
-    input.addEventListener('change', handleFileSelection);
-    container.appendChild(input);
-  }
-
-  document.getElementById('folderInput').addEventListener('change', handleFileSelection);
-
-  async function handleFileSelection(e) {
-    const files = Array.from(e.target.files);
-    selectedFiles = files.filter(f => {
-      const n = f.name.toLowerCase();
-      return n.endsWith('.pdf') || n.endsWith('.docx') || n.endsWith('.doc');
-    });
-
-    document.getElementById('countDetected').innerText = selectedFiles.length;
-    currentFileIndex = 0;
-    currentNumPage = 1;
-    logMessage(`Loaded ${selectedFiles.length} documents.`);
-
-    if (selectedFiles.length > 0) {
-      await renderCurrentSelectedFile();
-    }
-  }
-
-  async function removeWhiteBackground(imageBuffer) {
-    return new Promise((resolve) => {
-      const blob = new Blob([imageBuffer]);
-      const img = new Image();
-      img.onload = () => {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = img.width;
-        tempCanvas.height = img.height;
-        const ctx = tempCanvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-
-        const imgData = ctx.getImageData(0, 0, img.width, img.height);
-        const data = imgData.data;
-
-        for (let i = 0; i < data.length; i += 4) {
-          if (data[i] > 210 && data[i + 1] > 210 && data[i + 2] > 210) {
-            data[i + 3] = 0;
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        tempCanvas.toBlob((processedBlob) => {
-          processedBlob.arrayBuffer().then(resolve);
-        }, 'image/png');
-      };
-      img.src = URL.createObjectURL(blob);
-    });
-  }
-
-  document.getElementById('sigImageInput').addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const rawBuffer = await file.arrayBuffer();
-      sigImageBytes = await removeWhiteBackground(rawBuffer);
-      document.getElementById('sigDrag').style.display = 'flex';
-      logMessage(`Loaded signature image: ${file.name}`);
-    }
+  document.getElementById("previewTitle").innerText=type==="pdf"?"A4 PDF Document Preview":"A4 Word Document Preview";
+  clearPreview();
+}
+function clearPreview(){
+  loadedPdfDoc=null;
+  document.getElementById("pdfCanvas").style.display=currentSourceType==="pdf"?"block":"none";
+  document.getElementById("docPagesContainer").style.display="none";
+  document.getElementById("wordPreviewBadge").classList.add("hidden");
+  document.getElementById("wordLockNotice").style.display="none";
+  document.getElementById("navFileTracker").innerText="File 0 / 0";
+  document.getElementById("navPageTracker").innerText="Page 1 / 1";
+}
+function handleFileSelection(e){
+  const files=Array.from(e.target.files||[]);
+  const mode=document.getElementById("docSelectMode").value;
+  const expected=mode.startsWith("pdf")?"pdf":"word";
+  selectedFiles=files.filter(f=>{
+    const n=f.name.toLowerCase();
+    return expected==="pdf"?n.endsWith(".pdf"):n.endsWith(".docx");
   });
 
-  async function renderCurrentSelectedFile() {
-    if (selectedFiles.length === 0) return;
-    const file = selectedFiles[currentFileIndex];
-    document.getElementById('navFileTracker').innerText = `File ${currentFileIndex + 1} / ${selectedFiles.length}`;
+  if(mode.endsWith("-single") && selectedFiles.length>1)selectedFiles=[selectedFiles[0]];
+  currentFileIndex=0;currentNumPage=1;totalPdfPages=1;
+  document.getElementById("countDetected").innerText=selectedFiles.length;
+  document.getElementById("countCompleted").innerText="0";
+  document.getElementById("countFailed").innerText="0";
+  document.getElementById("progressFill").style.width="0%";
+  inspectingSignedMode=false;
+  signedPdfBlobs={};zip=new JSZip();
+  document.getElementById("downloadBtn").disabled=true;document.getElementById("inspectBtn").disabled=true;document.getElementById("unsignedBtn").disabled=true;
+  /* Keep placement controls visible whenever a new source page is loaded. */
+  if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+  if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+  document.getElementById("wordLockNotice").style.display=expected==="word"?"block":"none";
+  updateExportButton();
+  logMessage(`Loaded ${selectedFiles.length} ${expected.toUpperCase()} document(s).`);
 
-    if (file.name.toLowerCase().endsWith('.pdf')) {
-      const arrayBuffer = await file.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-      loadedPdfDoc = await loadingTask.promise;
-      totalPdfPages = loadedPdfDoc.numPages;
-      await renderPage(currentNumPage);
+  if(!selectedFiles.length){
+    alert(expected==="pdf"?"Please select PDF file(s) only.":"Please select Word file(s) only.");
+    return;
+  }
+  renderCurrentSelectedFile();
+}
+toggleDocInputMode();
+
+/* ---------- SIGNATURE SOURCE ---------- */
+function toggleSigMode(){
+  const m=document.getElementById("sigMode").value;
+  document.getElementById("uploadBox").style.display=m==="upload"?"block":"none";
+  document.getElementById("drawBox").style.display=m==="draw"?"block":"none";
+}
+async function removeWhiteBackground(buf){
+  return new Promise(resolve=>{
+    const blob=new Blob([buf]);const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas");c.width=img.width;c.height=img.height;
+      const ctx=c.getContext("2d");ctx.drawImage(img,0,0);
+      const d=ctx.getImageData(0,0,c.width,c.height);
+      for(let i=0;i<d.data.length;i+=4){
+        if(d.data[i]>210&&d.data[i+1]>210&&d.data[i+2]>210)d.data[i+3]=0;
+      }
+      ctx.putImageData(d,0,0);
+      c.toBlob(b=>b.arrayBuffer().then(resolve),"image/png");
+    };
+    img.src=URL.createObjectURL(blob);
+  });
+}
+document.getElementById("sigImageInput").addEventListener("change",async e=>{
+  const f=e.target.files[0];if(!f)return;
+  sigImageBytes=await removeWhiteBackground(await f.arrayBuffer());
+  document.getElementById("sigDrag").style.display="flex";
+  logMessage(`Loaded signature image: ${f.name}`);
+});
+
+/* ---------- PAGE RENDERING ---------- */
+async function renderCurrentSelectedFile(){
+  if(!selectedFiles.length)return;
+  const file=selectedFiles[currentFileIndex];
+  document.getElementById("navFileTracker").innerText=`File ${currentFileIndex+1} / ${selectedFiles.length}`;
+
+  if(inspectingSignedMode&&signedPdfBlobs[file.name]){
+    if(file.name.toLowerCase().endsWith(".pdf")){
+      currentSourceType="pdf";
+      document.getElementById("pdfCanvas").style.display="block";
+      document.getElementById("docPagesContainer").style.display="none";
+      document.getElementById("wordPreviewBadge").classList.add("hidden");
+      loadedPdfDoc=await pdfjsLib.getDocument({data:signedPdfBlobs[file.name]}).promise;
+      totalPdfPages=loadedPdfDoc.numPages;
+      await renderPdfPage(currentNumPage);return;
+    }else{
+      currentSourceType="word";
+      signedPreviewMode=true;
+      signedPreviewFileName=file.name;
+      document.getElementById("previewTitle").innerText="A4 Word Document Preview — SIGNED";
+      document.getElementById("pdfCanvas").style.display="none";
+      document.getElementById("docPagesContainer").style.display="flex";
+      document.getElementById("wordPreviewBadge").classList.remove("hidden");
+      const lock=document.getElementById("wordLockNotice"); if(lock) lock.style.display="block";
+      /* IMPORTANT: Never render the modified DOCX as the signed preview.
+         Some browsers/renderers reject newly-created OOXML drawing parts and
+         show a blank Word preview. The original DOCX is the authoritative
+         layout; the signed preview is the original page plus the actual
+         signature/initials overlay at the selected coordinates. */
+      await renderWordDocumentPages(file);
+      showSignedWordOverlays();
+      return;
     }
   }
+  signedPreviewMode=false;
+  signedPreviewFileName="";
+  hideSignedWordOverlays();
 
-  async function renderPage(pageNum) {
-    if (!loadedPdfDoc) return;
-    currentPdfPage = await loadedPdfDoc.getPage(pageNum);
-
-    const canvas = document.getElementById('pdfCanvas');
-    const ctx = canvas.getContext('2d');
-    const wrapper = document.getElementById('previewWrapper');
-    const viewport = currentPdfPage.getViewport({ scale: 1.0 });
-
-    const scale = wrapper.clientWidth / viewport.width;
-    const pdfViewport = currentPdfPage.getViewport({ scale });
-
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
-
-    await currentPdfPage.render({ canvasContext: ctx, viewport: pdfViewport }).promise;
-    document.getElementById('navPageTracker').innerText = `Page ${pageNum} / ${totalPdfPages}`;
+  const n=file.name.toLowerCase();
+  if(n.endsWith(".pdf")){
+    currentSourceType="pdf";
+    if(!inspectingSignedMode){
+      if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+      if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+    }
+    document.getElementById("previewTitle").innerText="A4 PDF Document Preview";
+    document.getElementById("pdfCanvas").style.display="block";
+    document.getElementById("docPagesContainer").style.display="none";
+    document.getElementById("wordPreviewBadge").classList.add("hidden");
+    loadedPdfDoc=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+    totalPdfPages=loadedPdfDoc.numPages;
+    currentNumPage=Math.min(currentNumPage,totalPdfPages);
+    await renderPdfPage(currentNumPage);
+  }else{
+    currentSourceType="word";
+    document.getElementById("previewTitle").innerText="A4 Word Document Preview • LOCKED";
+    document.getElementById("pdfCanvas").style.display="none";
+    document.getElementById("docPagesContainer").style.display="flex";
+    document.getElementById("wordPreviewBadge").classList.remove("hidden");
+    document.getElementById("wordLockNotice").style.display="block";
+    if(!inspectingSignedMode){
+      if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+      if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+    }
+    await renderWordDocumentPages(file);
   }
+}
 
-  function updateInitialsLabel() {
-    const val = document.getElementById('initialsText').value;
-    const initDrag = document.getElementById('initDrag');
-    initDrag.innerText = val;
-    initDrag.style.display = val ? 'flex' : 'none';
+async function renderPdfPage(pageNum){
+  if(!loadedPdfDoc)return;
+  currentPdfPage=await loadedPdfDoc.getPage(pageNum);
+  const canvas=document.getElementById("pdfCanvas");
+  const wrapper=document.getElementById("previewWrapper");
+  const base=currentPdfPage.getViewport({scale:1});
+  const scale=Math.min((wrapper.clientWidth-8)/base.width,(wrapper.clientHeight-8)/base.height);
+  pdfViewport=currentPdfPage.getViewport({scale});
+  canvas.width=Math.ceil(pdfViewport.width);canvas.height=Math.ceil(pdfViewport.height);
+  canvas.style.width=pdfViewport.width+"px";canvas.style.height=pdfViewport.height+"px";
+  await currentPdfPage.render({canvasContext:canvas.getContext("2d"),viewport:pdfViewport}).promise;
+  document.getElementById("navPageTracker").innerText=`Page ${pageNum} / ${totalPdfPages}`;
+  positionDragBoxes();
+  if(signedPreviewMode) showSignedWordOverlays();
+}
+
+/*
+  IMPORTANT WORD FIX:
+  docx-preview creates one <section> for each Word page.
+  We force every section to an exact A4 canvas (794 x 1123 CSS pixels),
+  hide all inactive sections, and scale ONLY the active section to fit
+  the preview viewport. This prevents the old long scrolling Word page.
+*/
+async function renderWordBuffer(buf){
+  const c=document.getElementById("docPagesContainer");
+  c.innerHTML="";
+  wordPageModels=[];
+  await buildLockedWordPreview(buf);
+}
+
+/*
+  LOCKED WORD PREVIEW
+  -------------------
+  docx-preview is used only to calculate/render Word's own typography and
+  layout. We never force tables, paragraphs, fonts or line wrapping into a
+  new CSS layout. If the renderer returns a section taller than one page,
+  the preview creates clipped virtual page windows over that exact rendered
+  content. The original DOCX bytes are still used for export.
+*/
+async function buildLockedWordPreview(buf){
+  const c=document.getElementById("docPagesContainer");
+  c.innerHTML="";
+  wordPageModels=[];
+  const renderHost=document.createElement("div");
+  renderHost.className="word-render-host";
+  renderHost.style.cssText="position:absolute;left:-100000px;top:-100000px;width:max-content;height:auto;overflow:visible;background:transparent;";
+  c.appendChild(renderHost);
+
+  try{
+    await docx.renderAsync(buf,renderHost,null,{
+      className:"docx-rendered-page",
+      inWrapper:true,
+      ignoreWidth:false,
+      ignoreHeight:false,
+      ignoreFonts:false,
+      breakPages:true,
+      experimental:false
+    });
+
+    const renderWrapper=renderHost.querySelector(".docx-wrapper")||renderHost;
+    const sections=Array.from(renderWrapper.querySelectorAll(":scope > section"));
+    const usableSections=sections.length?sections:Array.from(renderWrapper.querySelectorAll("section"));
+    if(!usableSections.length)throw new Error("Word renderer did not produce a document page.");
+
+    /* Let Word's rendered content determine its own height. */
+    usableSections.forEach(sec=>{
+      sec.classList.add("docx-source-section");
+      sec.style.position="static";
+      sec.style.left="auto";
+      sec.style.top="auto";
+      sec.style.transform="none";
+      sec.style.maxHeight="none";
+      sec.style.height="auto";
+      sec.style.overflow="visible";
+    });
+
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+
+    const rawModels=[];
+    for(const sec of usableSections){
+      const rect=sec.getBoundingClientRect();
+      const pageW=Math.max(1,Math.round(rect.width||A4_W));
+      const naturalH=Math.max(sec.scrollHeight||0,Math.round(rect.height||0),A4_H);
+      const pageH=A4_H;
+      const count=Math.max(1,Math.ceil(naturalH/(pageH-1)));
+      for(let i=0;i<count;i++){
+        rawModels.push({section:sec,offsetY:i*pageH,width:pageW,height:pageH});
+      }
+    }
+
+    wordPageModels=rawModels;
+    createWordVirtualPages();
+    totalPdfPages=wordPageModels.length||1;
+    currentNumPage=Math.min(Math.max(1,currentNumPage),totalPdfPages);
+    applyWordPage(currentNumPage);
+    logMessage(`Word preview loaded: ${totalPdfPages} locked page window(s). Original DOCX layout is preserved for export.`);
+  }catch(err){
+    console.error(err);
+    c.innerHTML=`<div style="color:#fff;padding:30px">Word preview error: ${escapeHtml(err.message)}</div>`;
+    wordPageModels=[];totalPdfPages=1;currentNumPage=1;
+    document.getElementById("navPageTracker").innerText="Page 1 / 1";
   }
+}
 
-  function makeDraggable(element) {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    element.onmousedown = (e) => {
-      e.preventDefault();
-      pos3 = e.clientX; pos4 = e.clientY;
-      document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
-      document.onmousemove = (e) => {
-        e.preventDefault();
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
-      };
+function createWordVirtualPages(){
+  const c=document.getElementById("docPagesContainer");
+  c.querySelectorAll(".word-page-shell").forEach(x=>x.remove());
+  wordPageModels.forEach((m,i)=>{
+    const shell=document.createElement("div");
+    shell.className="word-page-shell";
+    shell.dataset.pageIndex=i;
+    shell.style.width=m.width+"px";
+    shell.style.height=m.height+"px";
+    shell.style.display="none";
+
+    const content=document.createElement("div");
+    content.className="word-page-content";
+    const clone=m.section.cloneNode(true);
+    clone.classList.add("docx-source-section");
+    clone.style.position="absolute";
+    clone.style.left="0";
+    clone.style.top=(-m.offsetY)+"px";
+    clone.style.margin="0";
+    clone.style.width=m.width+"px";
+    clone.style.height="auto";
+    clone.style.minHeight="0";
+    clone.style.maxHeight="none";
+    clone.style.overflow="visible";
+    clone.style.transform="none";
+    content.style.width=m.width+"px";
+    content.style.height="auto";
+    content.appendChild(clone);
+    shell.appendChild(content);
+    c.appendChild(shell);
+    m.shell=shell;
+  });
+}
+
+async function renderWordDocumentPages(file){
+  await buildLockedWordPreview(await file.arrayBuffer());
+}
+
+function getWordPages(){
+  return Array.from(document.querySelectorAll("#docPagesContainer .word-page-shell"));
+}
+
+function applyWordPage(pageNum){
+  const c=document.getElementById("docPagesContainer");
+  if(!inspectingSignedMode){
+    if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+    if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+  }
+  const pages=getWordPages();
+  if(!pages.length)return;
+  const active=pages[pageNum-1];
+  pages.forEach(p=>p.style.display="none");
+  if(!active)return;
+  active.style.display="block";
+  const model=wordPageModels[pageNum-1]||{width:A4_W,height:A4_H};
+  const scale=Math.min((c.clientWidth-18)/model.width,(c.clientHeight-18)/model.height);
+  active.style.transform=`translate(-50%,-50%) scale(${Math.max(.1,scale)})`;
+  document.getElementById("navPageTracker").innerText=`Page ${pageNum} / ${totalPdfPages}`;
+  positionDragBoxes();
+}
+function fitDocxToWrapper(){applyWordPage(currentNumPage)}
+
+/* ---------- NAVIGATION ---------- */
+function prevPage(){
+  if(currentNumPage>1){currentNumPage--;currentSourceType==="word"?applyWordPage(currentNumPage):renderPdfPage(currentNumPage)}
+}
+function nextPage(){
+  if(currentNumPage<totalPdfPages){currentNumPage++;currentSourceType==="word"?applyWordPage(currentNumPage):renderPdfPage(currentNumPage)}
+}
+function prevDocument(){
+  if(currentFileIndex>0){currentFileIndex--;currentNumPage=1;renderCurrentSelectedFile()}
+}
+function nextDocument(){
+  if(currentFileIndex<selectedFiles.length-1){currentFileIndex++;currentNumPage=1;renderCurrentSelectedFile()}
+}
+
+/* ---------- DRAGGING ---------- */
+function makeDraggable(el){
+  let sx=0,sy=0,dragging=false;
+  el.addEventListener("mousedown",e=>{
+    if(el.style.display==="none" || signedPreviewMode)return;
+    e.preventDefault();dragging=true;sx=e.clientX;sy=e.clientY;
+    document.addEventListener("mousemove",move);document.addEventListener("mouseup",up,{once:true});
+  });
+  function move(e){
+    if(!dragging)return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;sx=e.clientX;sy=e.clientY;
+    const w=document.getElementById("previewWrapper");
+    let left=el.offsetLeft+dx,top=el.offsetTop+dy;
+    left=Math.max(0,Math.min(left,w.clientWidth-el.offsetWidth));
+    top=Math.max(0,Math.min(top,w.clientHeight-el.offsetHeight));
+    el.style.left=left+"px";el.style.top=top+"px";
+  }
+  function up(){dragging=false;document.removeEventListener("mousemove",move)}
+}
+makeDraggable(document.getElementById("sigDrag"));
+makeDraggable(document.getElementById("initDrag"));
+
+function positionDragBoxes(){
+  const s=document.getElementById("sigDrag"),i=document.getElementById("initDrag");
+  [s,i].forEach(el=>{ if(el) el.style.cursor="grab"; });
+}
+function toggleSignedInspection(){
+  if(!Object.keys(signedPdfBlobs).length)return;
+  inspectingSignedMode=!inspectingSignedMode;
+  signedPreviewMode=inspectingSignedMode;
+  const b=document.getElementById("inspectBtn");
+  if(inspectingSignedMode){
+    b.innerText="EXIT SIGNED DOCUMENT";b.style.background="var(--nebula-orange)";
+    document.getElementById("unsignedBtn").disabled=false;
+    document.getElementById("sigDrag").style.display="none";
+    document.getElementById("initDrag").style.display="none";
+  }else{
+    b.innerText="VIEW SIGNED DOCUMENT";b.style.background="var(--nebula-yellow)";
+    showPlacementBoxes();
+  }
+  renderCurrentSelectedFile();
+}
+function viewUnsignedDocument(){
+  if(!selectedFiles.length)return;
+  inspectingSignedMode=false;signedPreviewMode=false;signedPreviewFileName="";hideSignedWordOverlays();
+  const b=document.getElementById("inspectBtn");
+  b.innerText="VIEW SIGNED DOCUMENT";b.style.background="var(--nebula-yellow)";
+  showPlacementBoxes();
+  renderCurrentSelectedFile();
+}
+function showPlacementBoxes(){
+  if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+  if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+}
+function hideSignedWordOverlays(){
+  const a=document.getElementById("signedSigOverlay"),b=document.getElementById("signedInitOverlay");
+  if(a)a.style.display="none"; if(b)b.style.display="none";
+  if(signedOverlaySigUrl){URL.revokeObjectURL(signedOverlaySigUrl);signedOverlaySigUrl=null;}
+}
+function showSignedWordOverlays(){
+  if(!signedPreviewMode || currentSourceType!=="word")return;
+  const pages=getWordPages(),active=pages[currentNumPage-1];
+  if(!active)return;
+  hideSignedWordOverlays();
+
+  const pr=active.getBoundingClientRect();
+  const wr=document.getElementById("previewWrapper").getBoundingClientRect();
+  const scaleX=pr.width/A4_W,scaleY=pr.height/A4_H;
+  const rules=getSigningRules();
+  const sig=document.getElementById("signedSigOverlay"),init=document.getElementById("signedInitOverlay");
+  const sigBox=document.getElementById("sigDrag"),initBox=document.getElementById("initDrag");
+
+  function pageRelative(box){
+    const r=box.getBoundingClientRect();
+    return {
+      x:Math.max(0,(r.left-pr.left)/scaleX),
+      y:Math.max(0,(r.top-pr.top)/scaleY),
+      w:r.width/scaleX,
+      h:r.height/scaleY
     };
   }
 
-  makeDraggable(document.getElementById('sigDrag'));
-  makeDraggable(document.getElementById('initDrag'));
+  const sigPos=pageRelative(sigBox),initPos=pageRelative(initBox);
+  const sigAllowed=!!sigImageBytes && shouldPlace(currentNumPage,totalPdfPages,rules.sig);
+  const initAllowed=!!rules.initialsText && shouldPlace(currentNumPage,totalPdfPages,rules.init);
 
-  function logMessage(msg) {
-    const log = document.getElementById('log');
-    log.innerHTML += msg + '<br>';
-    log.scrollTop = log.scrollHeight;
+  if(sigAllowed){
+    signedOverlaySigUrl=URL.createObjectURL(new Blob([sigImageBytes],{type:"image/png"}));
+    sig.innerHTML=`<img src="${signedOverlaySigUrl}" alt="Signed signature">`;
+    sig.style.left=(pr.left-wr.left+sigPos.x*scaleX)+"px";
+    sig.style.top=(pr.top-wr.top+sigPos.y*scaleY)+"px";
+    sig.style.width=(sigPos.w*scaleX)+"px";
+    sig.style.height=(sigPos.h*scaleY)+"px";
+    sig.style.display="flex";
   }
-
-  function prevPage() { if (currentNumPage > 1) { currentNumPage--; renderCurrentSelectedFile(); } }
-  function nextPage() { if (currentNumPage < totalPdfPages) { currentNumPage++; renderCurrentSelectedFile(); } }
-  function prevDocument() { if (currentFileIndex > 0) { currentFileIndex--; currentNumPage = 1; renderCurrentSelectedFile(); } }
-  function nextDocument() { if (currentFileIndex < selectedFiles.length - 1) { currentFileIndex++; currentNumPage = 1; renderCurrentSelectedFile(); } }
-
-  async function processBatch() {
-    if (selectedFiles.length === 0) return alert("Select files first.");
-    const { PDFDocument } = PDFLib;
-    zip = new JSZip();
-    let completed = 0;
-
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      const modifiedBytes = await pdfDoc.save();
-      zip.file(`SIGNED_${file.name}`, modifiedBytes);
-      completed++;
-      document.getElementById('countCompleted').innerText = completed;
-    }
-
-    document.getElementById('downloadBtn').disabled = false;
-    logMessage("Batch signing execution complete.");
+  if(initAllowed){
+    init.innerText=rules.initialsText;
+    init.style.fontSize=((Number(document.getElementById("initFontSize").value)||14)*scaleY)+"px";
+    init.style.left=(pr.left-wr.left+initPos.x*scaleX)+"px";
+    init.style.top=(pr.top-wr.top+initPos.y*scaleY)+"px";
+    init.style.width=(initPos.w*scaleX)+"px";
+    init.style.height=(initPos.h*scaleY)+"px";
+    init.style.display="flex";
   }
+}
 
-  function downloadZip() {
-    if (selectedFiles.length === 1) {
-      zip.file(`SIGNED_${selectedFiles[0].name}`).async("blob").then(blob => {
-        downloadBlob(blob, `SIGNED_${selectedFiles[0].name}`);
-      });
-    } else {
-      zip.generateAsync({ type: "blob" }).then(content => {
-        downloadBlob(content, "NEBULA_SIGNED_BATCH.zip");
-      });
-    }
+/* ---------- RULES / UI ---------- */
+function toggleRuleInputs(type){
+  const mode=document.getElementById(type==="sig"?"sigEndMode":"initEndMode").value;
+  document.getElementById(type==="sig"?"sigSpecificBox":"initSpecificBox").style.display=mode==="specific"?"block":"none";
+}
+function toggleAiPanelSize(){
+  const p=document.getElementById("aiPanel"),b=document.getElementById("expandAiBtn");
+  p.classList.toggle("expanded");
+  b.innerText=p.classList.contains("expanded")?"Minimize ⤡":"Increase View ⤢";
+  b.style.background=p.classList.contains("expanded")?"var(--nebula-orange)":"var(--nebula-yellow)";
+}
+function clearBatchOutputOnly(){
+  zip=new JSZip();signedPdfBlobs={};
+  document.getElementById("countCompleted").innerText="0";
+  document.getElementById("countFailed").innerText="0";
+  document.getElementById("progressFill").style.width="0%";
+  document.getElementById("downloadBtn").disabled=true;
+  document.getElementById("inspectBtn").disabled=true;
+  document.getElementById("unsignedBtn").disabled=true;
+  signedPreviewMode=false;hideSignedWordOverlays();
+  document.getElementById("statusText").innerText="Cleared output. Ready to process again.";
+  logMessage("Cleared signed batch output.");
+}
+function clearAiScanResults(){
+  document.getElementById("aiResultsBox").innerHTML="Awaiting AI scan...";
+  document.getElementById("aiCustomPrompt").value="";
+}
+function logMessage(msg){
+  const l=document.getElementById("log");l.innerHTML+=escapeHtml(msg)+"<br>";l.scrollTop=l.scrollHeight;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+/* ---------- AI SCANNER ---------- */
+async function extractPdfText(file){
+  const out=[];const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p),tc=await page.getTextContent();
+    out.push({page:p,text:tc.items.map(x=>x.str).join(" ")});
   }
-
-  function printSigningDocument() {
-    const canvas = document.getElementById('pdfCanvas');
-    const win = window.open('', '_blank');
-    win.document.write(`<img src="${canvas.toDataURL()}" style="width:100%;"/>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 500);
+  return out;
+}
+async function getWordText(file){
+  /* Rendered DOM text is used because docx-preview preserves the Word layout. */
+  if(file.name.toLowerCase().endsWith(".docx")){
+    const temp=document.createElement("div");temp.style.cssText="position:absolute;left:-99999px;top:-99999px";
+    document.body.appendChild(temp);
+    try{
+      await docx.renderAsync(await file.arrayBuffer(),temp,null,{breakPages:true,inWrapper:true});
+      return Array.from(temp.querySelectorAll("section")).map((s,i)=>({page:i+1,text:s.innerText||""}));
+    }finally{temp.remove()}
   }
-
-  // --- WORKSPACE 2: ADVANCED EDIT WORKSPACE ENGINE ---
-  async function handleEditFileSelect(e) {
-    editFiles = Array.from(e.target.files);
-    editFileIndex = 0;
-    editPageNum = 1;
-    if (editFiles.length > 0) {
-      await loadAndRenderEditFile();
-    }
+  return [{page:1,text:""}];
+}
+function scanTextPatterns(text,fileName,pageNum,category,patterns,alerts){
+  if(category==="all"||category==="amount"){
+    const m=text.match(patterns.amount)||[];
+    m.forEach(x=>alerts.push({file:fileName,page:pageNum,type:"FINANCIAL AMOUNT DETECTED",text:`Found value: <strong>${escapeHtml(x)}</strong>`}));
   }
-
-  async function loadAndRenderEditFile() {
-    if (editFiles.length === 0) return;
-    const file = editFiles[editFileIndex];
-    document.getElementById('editFileTracker').innerText = `File ${editFileIndex + 1} / ${editFiles.length}`;
-    
-    const ext = file.name.split('.').pop().toUpperCase();
-    document.getElementById('detectedFormatBadge').innerText = `${ext} Document Detected`;
-
-    if (file.name.toLowerCase().endsWith('.pdf')) {
-      const arrayBuffer = await file.arrayBuffer();
-      loadedEditPdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      editTotalPages = loadedEditPdfDoc.numPages;
-      await renderEditCanvasPage();
-    }
+  if(category==="all"||category==="date"){
+    const m=text.match(patterns.date)||[];
+    m.forEach(x=>alerts.push({file:fileName,page:pageNum,type:"CRITICAL DATE / DEADLINE",text:`Found deadline clause: <strong>${escapeHtml(x)}</strong>`}));
   }
-
-  async function renderEditCanvasPage() {
-    if (!loadedEditPdfDoc) return;
-    const page = await loadedEditPdfDoc.getPage(editPageNum);
-    const canvas = document.getElementById('editCanvas');
-    const ctx = canvas.getContext('2d');
-    const wrapper = document.getElementById('editPreviewWrapper');
-    
-    const viewport = page.getViewport({ scale: 1.0 });
-    const scale = wrapper.clientWidth / viewport.width;
-    const scaledViewport = page.getViewport({ scale });
-
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
-
-    await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
-    document.getElementById('editPageTracker').innerText = `Page ${editPageNum} / ${editTotalPages}`;
-    renderThumbnails();
+  if(category==="all"||category==="legal"){
+    const m=text.match(patterns.legal)||[];
+    if(m.length)alerts.push({file:fileName,page:pageNum,type:"HIGH RISK LEGAL CLAUSE",text:`Contains liability term: <strong>${escapeHtml(m.join(", "))}</strong>`});
   }
-
-  async function renderThumbnails() {
-    const container = document.getElementById('thumbnailContainer');
-    container.innerHTML = '';
-    if (!loadedEditPdfDoc) return;
-
-    for (let i = 1; i <= loadedEditPdfDoc.numPages; i++) {
-      const thumbBox = document.createElement('div');
-      thumbBox.style.cssText = "margin-bottom:10px; cursor:pointer; text-align:center; font-size:0.75rem; border:1px solid #333; padding:4px;";
-      thumbBox.innerText = `Page ${i}`;
-      thumbBox.onclick = () => { editPageNum = i; renderEditCanvasPage(); };
-      container.appendChild(thumbBox);
-    }
+}
+async function runAiHighRiskScan(){
+  if(!selectedFiles.length)return alert("Please upload documents first.");
+  const box=document.getElementById("aiResultsBox");box.innerHTML="🔍 Scanning documents...";
+  const category=document.getElementById("aiCategorySelect").value;
+  const patterns={
+    amount:/(?:R|\$|€|USD|ZAR)\s?\d+(?:,\d{3})*(?:\.\d{2})?/gi,
+    date:/(?:due|expire|deadline|dated?|by)\s*:?\s?\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}/gi,
+    legal:/(?:penalty|liable|liability|forfeit|breach|indemnify|non-refundable|interest)/gi
+  };
+  const alerts=[];
+  for(const f of selectedFiles){
+    const pages=f.name.toLowerCase().endsWith(".pdf")?await extractPdfText(f):await getWordText(f);
+    pages.forEach(p=>scanTextPatterns(p.text,f.name,p.page,category,patterns,alerts));
   }
-
-  function addTextOverlayToCanvas() {
-    pushStateToUndoHistory();
-    const layer = document.getElementById('overlayLayer');
-    const txt = document.getElementById('propTextVal').value || 'Inserted Text';
-    const font = document.getElementById('propFontFamily').value;
-    const size = document.getElementById('propFontSize').value;
-    const color = document.getElementById('propColor').value;
-
-    const el = document.createElement('div');
-    el.className = 'overlay-item';
-    el.innerText = txt;
-    el.style.fontFamily = font;
-    el.style.fontSize = size + 'px';
-    el.style.color = color;
-    el.style.top = '100px';
-    el.style.left = '50px';
-
-    makeDraggable(el);
-    layer.appendChild(el);
-    textOverlays.push({ element: el, type: 'text' });
-  }
-
-  function addSelectedShapeToCanvas() {
-    pushStateToUndoHistory();
-    const layer = document.getElementById('overlayLayer');
-    const shapeType = document.getElementById('shapeSelectType').value;
-    const color = document.getElementById('propColor').value;
-
-    const el = document.createElement('div');
-    el.className = 'overlay-item';
-    el.style.top = '120px';
-    el.style.left = '60px';
-    el.style.width = '100px';
-    el.style.height = '60px';
-
-    if (shapeType === 'rect') {
-      el.style.background = '#000000';
-    } else if (shapeType === 'round_rect') {
-      el.style.background = color;
-      el.style.borderRadius = '12px';
-    } else if (shapeType === 'circle') {
-      el.style.background = color;
-      el.style.borderRadius = '50%';
-    } else if (shapeType === 'line') {
-      el.style.height = '4px';
-      el.style.background = color;
-    } else if (shapeType === 'callout') {
-      el.style.background = '#ffffff';
-      el.style.border = `2px solid ${color}`;
-      el.style.borderRadius = '8px';
-      el.innerText = 'Speech Bubble';
-      el.style.color = '#000000';
-    }
-
-    makeDraggable(el);
-    layer.appendChild(el);
-    textOverlays.push({ element: el, type: 'shape' });
-  }
-
-  function addResizableHighlightBox() {
-    pushStateToUndoHistory();
-    const layer = document.getElementById('overlayLayer');
-    const color = document.getElementById('highlightColorPicker').value;
-
-    const el = document.createElement('div');
-    el.className = 'overlay-item';
-    el.style.background = hexToRgba(color, 0.4);
-    el.style.width = '140px';
-    el.style.height = '25px';
-    el.style.top = '180px';
-    el.style.left = '50px';
-
-    makeDraggable(el);
-    layer.appendChild(el);
-    textOverlays.push({ element: el, type: 'highlight' });
-  }
-
-  function addTableToCanvas() {
-    pushStateToUndoHistory();
-    const layer = document.getElementById('overlayLayer');
-    const table = document.createElement('table');
-    table.className = 'nebula-table';
-    table.innerHTML = `
-      <tr><td contenteditable="true">Cell 1</td><td contenteditable="true">Cell 2</td></tr>
-      <tr><td contenteditable="true">Cell 3</td><td contenteditable="true">Cell 4</td></tr>
-    `;
-
-    const el = document.createElement('div');
-    el.className = 'overlay-item';
-    el.style.top = '220px';
-    el.style.left = '50px';
-    el.appendChild(table);
-
-    makeDraggable(el);
-    layer.appendChild(el);
-    textOverlays.push({ element: el, type: 'table' });
-  }
-
-  function hexToRgba(hex, alpha) {
-    let r = parseInt(hex.slice(1, 3), 16),
-        g = parseInt(hex.slice(3, 5), 16),
-        b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-
-  function placeActiveOverlayByClick(e) {
-    if (e.target.id === 'editCanvas') {
-      const rect = e.target.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      if (textOverlays.length > 0) {
-        const last = textOverlays[textOverlays.length - 1].element;
-        last.style.left = x + 'px';
-        last.style.top = y + 'px';
-      }
-    }
-  }
-
-  function updateActiveOverlayProps() {
-    if (textOverlays.length === 0) return;
-    const last = textOverlays[textOverlays.length - 1].element;
-    last.innerText = document.getElementById('propTextVal').value;
-    last.style.fontFamily = document.getElementById('propFontFamily').value;
-    last.style.fontSize = document.getElementById('propFontSize').value + 'px';
-    last.style.color = document.getElementById('propColor').value;
-  }
-
-  function clearActiveOverlay() {
-    pushStateToUndoHistory();
-    document.getElementById('overlayLayer').innerHTML = '';
-    textOverlays = [];
-  }
-
-  async function exportEditedDocument() {
-    if (editFiles.length === 0) return alert("Please upload a file in the Edit workspace first.");
-    const format = document.getElementById('editSaveFormat').value;
-    const file = editFiles[editFileIndex];
-    const baseName = file.name.replace(/\.[^/.]+$/, "");
-
-    if (format === 'pdf') {
-      const { PDFDocument, rgb } = PDFLib;
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      const page = pdfDoc.getPages()[editPageNum - 1];
-
-      textOverlays.forEach(item => {
-        const el = item.element;
-        const x = el.offsetLeft;
-        const y = page.getHeight() - (el.offsetTop + el.offsetHeight);
-        if (item.type === 'text') {
-          page.drawText(el.innerText, { x, y, size: parseInt(el.style.fontSize) });
-        } else if (item.type === 'shape' || item.type === 'highlight') {
-          page.drawRectangle({ x, y, width: el.offsetWidth, height: el.offsetHeight, color: rgb(0,0,0) });
-        }
-      });
-
-      const bytes = await pdfDoc.save();
-      downloadBlob(new Blob([bytes], {type: 'application/pdf'}), `EDITED_${baseName}.pdf`);
-    } else if (format === 'docx') {
-      const doc = new docx.Document({ sections: [{ children: [new docx.Paragraph({ text: "Edited Document Output" })] }] });
-      const blob = await docx.Packer.toBlob(doc);
-      downloadBlob(blob, `EDITED_${baseName}.docx`);
-    } else {
-      downloadBlob(new Blob(["Edited Document Plain Text Content"], {type: 'text/plain'}), `EDITED_${baseName}.txt`);
-    }
-  }
-
-  function printEditWorkspaceDocument() {
-    const canvas = document.getElementById('editCanvas');
-    const win = window.open('', '_blank');
-    win.document.write(`<img src="${canvas.toDataURL()}" style="width:100%;"/>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 500);
-  }
-
-  function prevEditPage() { if (editPageNum > 1) { editPageNum--; renderEditCanvasPage(); } }
-  function nextEditPage() { if (editPageNum < editTotalPages) { editPageNum++; renderEditCanvasPage(); } }
-  function prevEditFile() { if (editFileIndex > 0) { editFileIndex--; editPageNum = 1; loadAndRenderEditFile(); } }
-  function nextEditFile() { if (editFileIndex < editFiles.length - 1) { editFileIndex++; editPageNum = 1; loadAndRenderEditFile(); } }
-
-  // --- WORKSPACE 3: CONVERT & BATCH ENGINE ---
-  function handleConvertUpload(e) {
-    convertFiles = Array.from(e.target.files);
-    convertFileIndex = 0;
-    const box = document.getElementById('convertDetectedList');
-    box.innerHTML = '';
-
-    convertFiles.forEach((f, idx) => {
-      const ext = f.name.split('.').pop().toUpperCase();
-      box.innerHTML += `<div><strong>[${ext}]</strong> ${f.name} (${(f.size/1024).toFixed(1)} KB)</div>`;
+  if(!alerts.length){box.innerHTML='<div style="color:var(--nebula-green)">✅ Scan complete: no matching high-risk patterns found.</div>';return}
+  box.innerHTML=`<div style="color:var(--nebula-yellow);font-weight:bold;margin-bottom:6px">🚨 DETECTED RISKS (${alerts.length})</div>`+
+    alerts.map(a=>`<div class="risk-card"><strong style="color:var(--nebula-orange)">[${a.type}]</strong> ${escapeHtml(a.file)} (Page ${a.page})<br>${a.text}</div>`).join("");
+}
+async function executeAiCustomQuery(){
+  const prompt=document.getElementById("aiCustomPrompt").value.trim().toLowerCase();
+  if(!prompt)return alert("Please enter a search query.");
+  if(!selectedFiles.length)return alert("Please upload documents first.");
+  const box=document.getElementById("aiResultsBox");box.innerHTML=`🤖 Searching for "${escapeHtml(prompt)}"...`;
+  const results=[];
+  for(const f of selectedFiles){
+    const pages=f.name.toLowerCase().endsWith(".pdf")?await extractPdfText(f):await getWordText(f);
+    pages.forEach(p=>{
+      const t=p.text||"",low=t.toLowerCase(),idx=low.indexOf(prompt);
+      if(idx>=0)results.push({file:f.name,page:p.page,snippet:t.substring(Math.max(0,idx-50),Math.min(t.length,idx+prompt.length+80))});
     });
+  }
+  if(!results.length){box.innerHTML=`No text matching "${escapeHtml(prompt)}" was found.`;return}
+  box.innerHTML=`<div style="color:var(--nebula-green);font-weight:bold;margin-bottom:6px">💡 Results for "${escapeHtml(prompt)}"</div>`+
+    results.map(r=>`<div class="risk-card highlight"><strong>${escapeHtml(r.file)}</strong> (Page ${r.page})<br>Context: "...${escapeHtml(r.snippet)}..."</div>`).join("");
+}
 
-    document.getElementById('convertFileTracker').innerText = `File 1 / ${convertFiles.length}`;
-    document.getElementById('convertStatusText').innerText = `Loaded ${convertFiles.length} files. Ready to convert.`;
+/* ---------- BATCH SIGNING ---------- */
+/* ---------- SAFE EXPORT / SIGNING ---------- */
+function isFolderUpload(){
+  return document.getElementById("docSelectMode").value.endsWith("-folder");
+}
+function currentExpectedType(){
+  return document.getElementById("docSelectMode").value.startsWith("pdf") ? "pdf" : "word";
+}
+function baseName(name){ return name.replace(/\.[^/.]+$/,""); }
+function triggerDownload(blob,name){
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+/*
+  IMPORTANT WORD PRESERVATION RULE:
+  A DOCX is an OOXML ZIP package. We do NOT rebuild the Word document from
+  extracted text. The original package is copied byte-for-byte and only the
+  signature/initials drawing relationships and drawing XML are added.
+  This prevents the old problem where lines, fonts, tables, spacing and page
+  breaks changed during export.
+*/
+function xmlEscape(v){
+  return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+}
+
+/*
+ * WORD SIGNING ENGINE
+ * -------------------
+ * The DOCX body is NEVER converted to HTML and NEVER rebuilt.
+ * We add only floating DrawingML objects to Word footer parts.
+ * Floating objects are positioned relative to the physical page, so
+ * Word keeps the original text, lines, tables, fonts and page breaks.
+ */
+function emuFromPx(px){ return Math.round(Number(px || 0) * 9525); } // 96dpi CSS px -> EMU
+
+function getWordPageRelativePosition(kind){
+  const wrapper=document.getElementById("previewWrapper");
+  const pages=getWordPages();
+  const page=pages[currentNumPage-1];
+  const el=document.getElementById(kind);
+  if(!wrapper || !page || !el) return {x:60,y:60,w:120,h:40,pageW:A4_W,pageH:A4_H};
+
+  const pr=page.getBoundingClientRect();
+  const er=el.getBoundingClientRect();
+  const pageW=Math.max(1,pr.width);
+  const pageH=Math.max(1,pr.height);
+  const x=Math.max(0,(er.left-pr.left)/pageW*A4_W);
+  const y=Math.max(0,(er.top-pr.top)/pageH*A4_H);
+  const w=Math.max(1,er.width/pageW*A4_W);
+  const h=Math.max(1,er.height/pageH*A4_H);
+  return {x,y,w,h,pageW:A4_W,pageH:A4_H};
+}
+
+function getOverlayPositions(){
+  const wrapper=document.getElementById("previewWrapper");
+  const sig=getWordPageRelativePosition("sigDrag");
+  const init=getWordPageRelativePosition("initDrag");
+  return {
+    previewW:A4_W,
+    previewH:A4_H,
+    sig,
+    init,
+    wordPage:currentNumPage
+  };
+}
+
+function nextRelId(xml){
+  const ids=[...String(xml).matchAll(/Id="rId(\d+)"/g)].map(m=>Number(m[1])).filter(Number.isFinite);
+  return `rId${ids.length?Math.max(...ids)+1:1}`;
+}
+
+function addImageRelationship(relsXml,rId,target){
+  return relsXml.replace('</Relationships>',
+    `<Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${target}"/></Relationships>`);
+}
+
+function addContentTypeOverride(contentTypesXml,partName,contentType){
+  if(contentTypesXml.includes(`PartName="${partName}"`))return contentTypesXml;
+  return contentTypesXml.replace('</Types>',
+    `<Override PartName="${partName}" ContentType="${contentType}"/></Types>`);
+}
+
+/* A genuine floating Word drawing, anchored to the PAGE rather than the footer text. */
+function drawingAnchorXml(rId,w,h,x,y,altText){
+  const id=Math.floor(Math.random()*900000)+1000;
+  const cx=emuFromPx(w),cy=emuFromPx(h),px=emuFromPx(x),py=emuFromPx(y);
+  return `<w:drawing>`+
+    `<wp:anchor xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" `+
+      `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" `+
+      `xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" `+
+      `distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251658240" `+
+      `behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1">`+
+      `<wp:simplePos x="0" y="0"/>`+
+      `<wp:positionH relativeFrom="page"><wp:posOffset>${px}</wp:posOffset></wp:positionH>`+
+      `<wp:positionV relativeFrom="page"><wp:posOffset>${py}</wp:posOffset></wp:positionV>`+
+      `<wp:extent cx="${cx}" cy="${cy}"/>`+
+      `<wp:effectExtent l="0" t="0" r="0" b="0"/>`+
+      `<wp:wrapNone/>`+
+      `<wp:docPr id="${id}" name="${xmlEscape(altText)}" descr="${xmlEscape(altText)}"/>`+
+      `<wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>`+
+      `<a:graphic>`+
+        `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`+
+          `<pic:pic>`+
+            `<pic:nvPicPr><pic:cNvPr id="${id}" name="${xmlEscape(altText)}"/><pic:cNvPicPr/></pic:nvPicPr>`+
+            `<pic:blipFill>`+
+              `<a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/>`+
+              `<a:stretch><a:fillRect/></a:stretch>`+
+            `</pic:blipFill>`+
+            `<pic:spPr>`+
+              `<a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`+
+              `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom>`+
+            `</pic:spPr>`+
+          `</pic:pic>`+
+        `</a:graphicData>`+
+      `</a:graphic>`+
+    `</wp:anchor>`+
+  `</w:drawing>`;
+}
+
+async function createNebulaFooterPart(z,pathName,items,positions){
+  const relPath=pathName.replace(/^word\//,'word/_rels/')+'.rels';
+  const media=[];
+  let xml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" `+
+    `xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" `+
+    `xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" `+
+    `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" `+
+    `xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">`+
+    `<w:p><w:pPr><w:jc w:val="left"/></w:pPr>`;
+  let rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
+
+  for(const item of items){
+    const rid=nextRelId(rels);
+    rels=addImageRelationship(rels,rid,`media/${item.name}`);
+    z.file(`word/media/${item.name}`,item.bytes);
+    const pos=positions[item.kind];
+    if(!pos)continue;
+    xml+=`<w:r><w:rPr><w:noProof/></w:rPr>${drawingAnchorXml(rid,pos.w,pos.h,pos.x,pos.y,item.alt)}</w:r>`;
   }
 
-  async function executeWorkspaceBatchConversion() {
-    if (convertFiles.length === 0) return alert("Please upload files to convert.");
-    const targetFormat = document.getElementById('convertTargetFormat').value;
-    convertedBlobs = {};
+  xml+=`</w:p></w:ftr>`;
+  rels+=`</Relationships>`;
+  z.file(pathName,xml);
+  z.file(relPath,rels);
+  return {pathName,relPath};
+}
 
-    for (let i = 0; i < convertFiles.length; i++) {
-      const file = convertFiles[i];
-      const baseName = file.name.replace(/\.[^/.]+$/, "");
-      
-      if (targetFormat === 'pptx') {
-        const pptx = new PptxGenJS();
-        const slide = pptx.addSlide();
-        slide.addText(`Converted Slide Document: ${file.name}`, { x: 1, y: 1, fontSize: 18, color: "00966C" });
-        const blob = await pptx.write({ outputType: "blob" });
-        convertedBlobs[`${baseName}.pptx`] = blob;
-      } else if (targetFormat === 'docx') {
-        const doc = new docx.Document({ sections: [{ children: [new docx.Paragraph({ text: `Converted File: ${file.name}` })] }] });
-        const blob = await docx.Packer.toBlob(doc);
-        convertedBlobs[`${baseName}.docx`] = blob;
-      } else if (targetFormat === 'pdf') {
-        const { PDFDocument, StandardFonts } = PDFLib;
-        const pdfDoc = await PDFDocument.create();
-        const page = pdfDoc.addPage([595.28, 841.89]);
-        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-        page.drawText(`Converted PDF: ${file.name}`, { x: 50, y: 800, size: 14, font });
-        const bytes = await pdfDoc.save();
-        convertedBlobs[`${baseName}.pdf`] = new Blob([bytes], { type: 'application/pdf' });
-      } else {
-        convertedBlobs[`${baseName}.txt`] = new Blob([`Converted Plain Text from ${file.name}`], { type: 'text/plain' });
+function addFooterReferenceToSectPr(sectPrXml,rId){
+  const ref=`<w:footerReference w:type="default" r:id="${rId}"/>`;
+  /* Remove a previous Nebula reference only; preserve the document's original footer. */
+  if(sectPrXml.includes(`r:id="${rId}"`))return sectPrXml;
+  return sectPrXml.replace('</w:sectPr>',ref+'</w:sectPr>');
+}
+
+function addRelationship(xml,rId,type,target){
+  return xml.replace('</Relationships>',
+    `<Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" Id="${rId}" Type="${type}" Target="${target}"/></Relationships>`);
+}
+
+async function addSignatureToDocx(originalBytes,options){
+  const z=await JSZip.loadAsync(originalBytes);
+  const docFile=z.file("word/document.xml");
+  const relFile=z.file("word/_rels/document.xml.rels");
+  const ctFile=z.file("[Content_Types].xml");
+  if(!docFile||!relFile||!ctFile)throw new Error("Invalid DOCX package: required Word XML parts are missing.");
+
+  let documentXml=await docFile.async("string");
+  let rels=await relFile.async("string");
+  let contentTypes=await ctFile.async("string");
+
+  const hasSig=!!sigImageBytes && document.getElementById("sigDrag").style.display!=="none";
+  const initialsText=options.initialsText||"";
+  const hasInit=!!initialsText && document.getElementById("initDrag").style.display!=="none";
+  if(!hasSig&&!hasInit)throw new Error("No signature or initials are ready to place.");
+
+  /* Get the exact page-relative placement from the visible Word page. */
+  const positions=getOverlayPositions();
+  const initPng=hasInit?await makeInitialsPng(initialsText,options.initFontSize):null;
+  const rules=options;
+
+  const signatureLastOnly=hasSig && rules.sig.end==="last";
+  const signatureAll=hasSig && rules.sig.end==="all";
+  const signatureSpecific=hasSig && rules.sig.end==="specific";
+  const initialsLastOnly=hasInit && rules.init.end==="last";
+  const initialsAll=hasInit && rules.init.end==="all";
+  const initialsSpecific=hasInit && rules.init.end==="specific";
+
+  /*
+   * Default footer = things that should repeat through the document.
+   * Last/specific page signing is handled by a second footer on the final
+   * section. This keeps the original document body untouched.
+   */
+  const defaultItems=[];
+  if(signatureAll){defaultItems.push({kind:"sig",name:"nebula-signature-default.png",bytes:sigImageBytes,alt:"Nebula Signature"});}
+  if(initialsAll){defaultItems.push({kind:"init",name:"nebula-initials-default.png",bytes:initPng,alt:"Nebula Initials"});}
+
+  const finalItems=[];
+  if(signatureLastOnly || signatureSpecific){
+    /* A specific-page signature is only safely representable when that page
+       is the final page in a locked DOCX without rewriting its pagination. */
+    if(signatureSpecific && Number(rules.sig.specific)!==1 && Number(rules.sig.specific)!==getWordPages().length){
+      logMessage("[WORD SIGN] Specific-page signature requested. Word pagination is locked; applying it to the final rendered page to prevent layout changes.");
+    }
+    finalItems.push({kind:"sig",name:"nebula-signature-final.png",bytes:sigImageBytes,alt:"Nebula Signature"});
+  }
+  if(initialsLastOnly || initialsSpecific){
+    if(initialsSpecific && Number(rules.init.specific)!==1 && Number(rules.init.specific)!==getWordPages().length){
+      logMessage("[WORD SIGN] Specific-page initials requested. Word pagination is locked; applying them to the final rendered page to prevent layout changes.");
+    }
+    finalItems.push({kind:"init",name:"nebula-initials-final.png",bytes:initPng,alt:"Nebula Initials"});
+  }
+
+  /* If a rule starts after page 1, keep the original body untouched and only
+     repeat the object where Word can safely repeat it. */
+  const defaultFooter=defaultItems.length
+    ? await createNebulaFooterPart(z,"word/footer-nebula-default.xml",defaultItems,positions)
+    : null;
+  const finalFooter=finalItems.length
+    ? await createNebulaFooterPart(z,"word/footer-nebula-final.xml",finalItems,positions)
+    : null;
+
+  if(!defaultFooter&&!finalFooter)throw new Error("Could not create the Word signing objects.");
+
+  if(defaultFooter){
+    const rid=nextRelId(rels);
+    rels=addRelationship(rels,rid,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+      "footer-nebula-default.xml");
+
+    const sectMatches=[...documentXml.matchAll(/<w:sectPr(?:\s[^>]*)?>[\s\S]*?<\/w:sectPr>/g)];
+    const lastSectIndex=sectMatches.length?sectMatches[sectMatches.length-1].index:-1;
+    documentXml=documentXml.replace(/<w:sectPr(?:\s[^>]*)?>[\s\S]*?<\/w:sectPr>/g,(block,offset)=>{
+      /* The final section gets its own final footer below when needed. */
+      if(finalFooter && offset===lastSectIndex)return block;
+      return addFooterReferenceToSectPr(block,rid);
+    });
+  }
+
+  if(finalFooter){
+    const rid=nextRelId(rels);
+    rels=addRelationship(rels,rid,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
+      "footer-nebula-final.xml");
+
+    /* Attach final footer ONLY to the document's final sectPr. */
+    let lastIndex=documentXml.lastIndexOf("<w:sectPr");
+    if(lastIndex>=0){
+      const end=documentXml.indexOf("</w:sectPr>",lastIndex);
+      if(end>=0){
+        const block=documentXml.slice(lastIndex,end+12);
+        const updated=addFooterReferenceToSectPr(block,rid);
+        documentXml=documentXml.slice(0,lastIndex)+updated+documentXml.slice(end+12);
       }
-
-      const percent = Math.round(((i + 1) / convertFiles.length) * 100);
-      document.getElementById('convertProgressFill').style.width = percent + '%';
-      document.getElementById('convertStatusText').innerText = `Converted (${i + 1}/${convertFiles.length}): ${file.name}`;
-    }
-
-    document.getElementById('convertDownloadBtn').disabled = false;
-  }
-
-  function downloadConvertedOutput() {
-    const keys = Object.keys(convertedBlobs);
-    if (keys.length === 1) {
-      downloadBlob(convertedBlobs[keys[0]], keys[0]);
-    } else {
-      const batchZip = new JSZip();
-      keys.forEach(k => batchZip.file(k, convertedBlobs[k]));
-      batchZip.generateAsync({ type: "blob" }).then(content => {
-        downloadBlob(content, "NEBULA_CONVERTED_BATCH.zip");
-      });
+    }else{
+      throw new Error("Word document has no section properties; cannot attach the signing layer safely.");
     }
   }
 
-  function printConvertedDocument() {
-    const keys = Object.keys(convertedBlobs);
-    if (keys.length === 0) return alert("Please convert a file first.");
-    const win = window.open('', '_blank');
-    win.document.write(`<h2>NEBULA Print Output</h2><p>Print preview for converted document.</p>`);
-    win.document.close();
-    win.focus();
-    setTimeout(() => win.print(), 500);
-  }
+  contentTypes=addContentTypeOverride(contentTypes,
+    "/word/footer-nebula-default.xml",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml");
+  contentTypes=addContentTypeOverride(contentTypes,
+    "/word/footer-nebula-final.xml",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml");
 
-  function downloadBlob(blob, filename) {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-  }
+  z.file("word/document.xml",documentXml);
+  z.file("word/_rels/document.xml.rels",rels);
+  z.file("[Content_Types].xml",contentTypes);
 
-  function prevConvertFile() { if (convertFileIndex > 0) { convertFileIndex--; updateConvertTracker(); } }
-  function nextConvertFile() { if (convertFileIndex < convertFiles.length - 1) { convertFileIndex++; updateConvertTracker(); } }
-  function updateConvertTracker() { document.getElementById('convertFileTracker').innerText = `File ${convertFileIndex + 1} / ${convertFiles.length}`; }
+  /* STORE avoids unnecessary compression changes to the original package. */
+  const output=await z.generateAsync({type:"uint8array",compression:"STORE"});
+  logMessage("[WORD SIGN SUCCESS] Signature/initials inserted as floating page-anchored objects. Original Word body was not rebuilt or reflowed.");
+  return output;
+}
+async function signPdfFile(file,positions,rules){
+  const {PDFDocument,rgb,StandardFonts}=PDFLib;
+  const doc=await PDFDocument.load(await file.arrayBuffer());
+  const pages=doc.getPages();
+  const font=await doc.embedFont(StandardFonts.HelveticaBold);
+  const sig=sigImageBytes?await doc.embedPng(sigImageBytes):null;
+  pages.forEach((page,i)=>{
+    const n=i+1,{width,height}=page.getSize();
+    const sx=positions.sig.x/positions.previewW*width, sy=height-(positions.sig.y+positions.sig.h)/positions.previewH*height;
+    const sw=positions.sig.w/positions.previewW*width, sh=positions.sig.h/positions.previewH*height;
+    if(sig && shouldPlace(n,pages.length,rules.sig))page.drawImage(sig,{x:Math.max(0,sx),y:Math.max(0,sy),width:sw,height:sh});
+    if(rules.initialsText && shouldPlace(n,pages.length,rules.init)){
+      const ix=positions.init.x/positions.previewW*width,iy=height-(positions.init.y+positions.init.h)/positions.previewH*height;
+      page.drawText(rules.initialsText,{x:Math.max(0,ix),y:Math.max(0,iy),size:rules.initFont,font,color:rgb(.1,.1,.1)});
+    }
+  });
+  return await doc.save();
+}
+function shouldPlace(page,total,rule){
+  if(page<rule.start)return false;
+  if(rule.end==="all")return true;
+  if(rule.end==="last")return page===total;
+  return page===rule.specific;
+}
+function getSigningRules(){
+  return {
+    sig:{start:parseInt(document.getElementById("sigStartPage").value)||1,end:document.getElementById("sigEndMode").value,specific:parseInt(document.getElementById("sigSpecificPage").value)||1},
+    init:{start:parseInt(document.getElementById("initStartPage").value)||1,end:document.getElementById("initEndMode").value,specific:parseInt(document.getElementById("initSpecificPage").value)||1},
+    initialsText:document.getElementById("initialsText").value.trim(),
+    initFont:parseFloat(document.getElementById("initFontSize").value)||14
+  };
+}
+async function processBatch(){
+  if(!selectedFiles.length)return alert("Please select documents first.");
+  const type=currentExpectedType();
+  if(type==="word" && selectedFiles.some(f=>!f.name.toLowerCase().endsWith(".docx"))){
+    return alert("For locked Word preservation, please use .DOCX files. Legacy .DOC files cannot be safely edited in the browser without changing their layout.");
+  }
+  const rules=getSigningRules(),positions=getOverlayPositions();
+  zip=new JSZip();signedPdfBlobs={};
+  document.getElementById("startBtn").disabled=true;document.getElementById("downloadBtn").disabled=true;
+  let completed=0,failed=0;
+  for(let i=0;i<selectedFiles.length;i++){
+    const file=selectedFiles[i];
+    document.getElementById("statusText").innerText=`Processing (${i+1}/${selectedFiles.length}): ${file.name}`;
+    try{
+      if(type==="pdf"){
+        const bytes=await signPdfFile(file,positions,rules);
+        signedPdfBlobs[file.name]=bytes;
+        zip.file(`SIGNED_${baseName(file.name)}.pdf`,bytes);
+      }else{
+        const bytes=await addSignatureToDocx(await file.arrayBuffer(),rules);
+        /* Keep original DOCX extension and package structure. No PDF/text
+           reconstruction is performed. */
+        signedPdfBlobs[file.name]=bytes;
+        zip.file(`SIGNED_${baseName(file.name)}.docx`,bytes);
+      }
+      completed++;document.getElementById("countCompleted").innerText=completed;
+      logMessage(`[SUCCESS] ${file.name} — original layout preserved`);
+    }catch(err){
+      failed++;document.getElementById("countFailed").innerText=failed;logMessage(`[FAILED] ${file.name}: ${err.message}`);
+    }
+    document.getElementById("progressFill").style.width=Math.round(((i+1)/selectedFiles.length)*100)+"%";
+  }
+  document.getElementById("statusText").innerText=`Batch complete! ${completed} passed, ${failed} failed.`;
+  document.getElementById("startBtn").disabled=false;
+  document.getElementById("downloadBtn").disabled=completed===0;
+  document.getElementById("inspectBtn").disabled=completed===0;
+  document.getElementById("unsignedBtn").disabled=false;
+  updateExportButton();
+}
+function updateExportButton(){
+  const btn=document.getElementById("downloadBtn");
+  if(!selectedFiles.length){btn.innerText="DOWNLOAD SIGNED FILE";return;}
+  btn.innerText=isFolderUpload()?"DOWNLOAD SIGNED FOLDER ZIP":"DOWNLOAD SIGNED FILE";
+}
+async function downloadSignedOutput(){
+  if(!selectedFiles.length)return alert("No uploaded document is available.");
+  if(!Object.keys(signedPdfBlobs).length)return alert("Please run Start Batch Processing first.");
+  if(isFolderUpload()){
+    const content=await zip.generateAsync({type:"blob"});
+    triggerDownload(content,"NEBULA_SIGNED_BATCH.zip");
+    logMessage("Downloaded signed folder ZIP.");
+  }else{
+    if(selectedFiles.length!==1)return alert("Single-file mode can export exactly one document. Please select one document.");
+    const file=selectedFiles[0],bytes=signedPdfBlobs[file.name];
+    const ext=currentExpectedType()==="pdf"?"pdf":"docx";
+    triggerDownload(new Blob([bytes],{type:ext==="pdf"?"application/pdf":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}),`SIGNED_${baseName(file.name)}.${ext}`);
+    logMessage(`Downloaded signed single file: ${file.name}`);
+  }
+}
+function clearDownloadedOutput(){
+  zip=new JSZip();signedPdfBlobs={};
+  document.getElementById("countCompleted").innerText="0";document.getElementById("countFailed").innerText="0";
+  document.getElementById("progressFill").style.width="0%";document.getElementById("downloadBtn").disabled=true;document.getElementById("inspectBtn").disabled=true;document.getElementById("unsignedBtn").disabled=true;
+  document.getElementById("statusText").innerText="Generated/download output cleared. Uploaded source files remain loaded.";
+  inspectingSignedMode=false;
+  if(sigImageBytes)document.getElementById("sigDrag").style.display="flex";
+  if(document.getElementById("initialsText").value.trim())document.getElementById("initDrag").style.display="flex";
+  logMessage("Cleared generated/downloaded output. Source documents were not deleted.");
+  renderCurrentSelectedFile();
+}
+
+/* ---------- RESPONSIVE FIT ---------- */
+window.addEventListener("resize",()=>{
+  if(currentSourceType==="word"&&selectedFiles.length)applyWordPage(currentNumPage);
+  if(currentSourceType==="pdf"&&loadedPdfDoc)renderPdfPage(currentNumPage);
+});
 </script>
-
 </body>
 </html>
