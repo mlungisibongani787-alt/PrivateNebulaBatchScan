@@ -20,8 +20,6 @@ h1{margin:0;font-size:1.8rem;color:#fff;letter-spacing:1px}
 h1 span.green{color:var(--nebula-green)} h1 span.yellow{color:var(--nebula-yellow)}
 h1 span.orange{color:var(--nebula-orange)} h1 span.purple{color:var(--nebula-purple)}
 p.subtitle{margin:4px 0 0;color:var(--text-dim);font-size:.85rem}
-.top-inspection-bar{margin-bottom:15px;display:flex;gap:10px}
-.top-inspection-bar button{background:var(--nebula-yellow);color:#000;border:none;padding:10px 20px;font-weight:bold;border-radius:4px;cursor:pointer;width:100%}
 .grid{display:grid;grid-template-columns:380px minmax(480px,1fr) 340px;gap:20px}
 .card{background:var(--nebula-card);padding:18px;border-radius:8px;border:1px solid var(--border);position:relative}
 h3{margin-top:0;border-bottom:1px solid var(--border);padding-bottom:8px;font-size:1rem}
@@ -52,47 +50,13 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   width:100%;height:100%;overflow:hidden;display:none;position:relative;
   align-items:center;justify-content:center;background:#525659;
 }
-/* IMPORTANT: do not rewrite Word tables, widths, fonts, margins or line wrapping.
-   docx-preview supplies the document's own geometry. */
-#docPagesContainer .docx-wrapper{
-  position:relative!important;left:auto!important;top:auto!important;
-  width:100%!important;height:100%!important;min-height:0!important;
-  padding:0!important;margin:0!important;overflow:visible!important;
-  background:transparent!important;
-}
-#docPagesContainer .docx-wrapper > section{
-  box-sizing:border-box!important;
-}
-#docPagesContainer .docx-source-section{
-  box-sizing:border-box!important;overflow:visible!important;max-height:none!important;
-}
-.word-page-shell{
-  position:absolute;left:50%;top:50%;background:#fff;overflow:hidden;
-  box-shadow:0 0 10px rgba(0,0,0,.45);transform-origin:center center;
-}
-.word-page-shell .word-page-content{
-  position:absolute;left:0;top:0;margin:0;padding:0;
-  transform-origin:top left;overflow:visible;
-}
-.word-page-shell .word-page-content > section{
-  margin:0!important;
-  max-height:none!important;
-  overflow:visible!important;
-}
-.word-preview-badge{
-  position:absolute;left:10px;top:10px;z-index:20;background:rgba(0,0,0,.65);
-  color:#fff;padding:4px 8px;border-radius:4px;font-size:.7rem;pointer-events:none
-}
 .drag-element{
   position:absolute;border:2px dashed;cursor:grab;display:flex;align-items:center;
   justify-content:center;font-weight:bold;font-size:.8rem;border-radius:3px;box-sizing:border-box;z-index:30
 }
 #sigDrag{border-color:var(--nebula-yellow);background:rgba(226,192,40,.35);color:#000;width:120px;height:40px;top:550px;left:60px}
-#initDrag{border-color:var(--nebula-purple);background:rgba(139,107,167,.35);color:#000;width:60px;height:25px;top:560px;left:350px;display:none}
+#initDrag{border-color:var(--nebula-purple);background:rgba(139,107,167,.35);color:#000;width:60px;height:25px;top:560px;left:350px;display:flex}
 .drag-element::after{content:"⬆";position:absolute;right:-30px;top:50%;transform:translateY(-50%);font-family:Arial,sans-serif;font-size:34px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;z-index:100}
-.signed-word-overlay{position:absolute;z-index:10000;pointer-events:none;display:none;align-items:center;justify-content:center;overflow:visible}
-.signed-word-overlay img{display:block;width:100%;height:100%;object-fit:contain}
-.signed-word-overlay.initials{font-weight:700;color:#111;white-space:nowrap}
 .flex-row{display:flex;gap:8px}.flex-row>div{flex:1}
 .nav-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;background:var(--nebula-bg);padding:8px;border-radius:4px;border:1px solid var(--border);flex-wrap:wrap}
 .source-status{margin-top:7px;padding:7px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.75rem}
@@ -109,7 +73,6 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
 .hidden{display:none!important}
 .export-note{margin-top:7px;padding:8px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.72rem;line-height:1.35}
 .export-note strong{color:var(--nebula-yellow)}
-.word-lock{display:none;margin-top:7px;padding:8px 9px;border:1px solid var(--nebula-green);border-radius:4px;background:rgba(0,150,108,.08);color:#cfeee5;font-size:.72rem;line-height:1.35}
 
 @media(max-width:1150px){
   .grid{grid-template-columns:1fr}
@@ -123,15 +86,11 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
 <header>
   <div>
     <h1><span class="green">N</span><span class="yellow">E</span><span class="orange">B</span><span class="purple">U</span><span class="green">L</span><span class="yellow">A</span> BATCH SIGNER</h1>
-    <p class="subtitle">Client-Side Engine | True A4 Preview | PDF &amp; Word Document Signing</p>
+    <p class="subtitle">Client-Side Engine | True A4 Preview | PDF Document Signing</p>
   </div>
   <div style="font-weight:bold;font-size:.9rem;color:var(--nebula-yellow)">WE CARE</div>
 </header>
 
-<div class="top-inspection-bar">
-  <button type="button" id="inspectBtn" onclick="toggleSignedInspection()" disabled>VIEW SIGNED DOCUMENT</button>
-  <button type="button" id="unsignedBtn" onclick="viewUnsignedDocument()" disabled style="background:var(--nebula-purple);color:#fff">VIEW UNSIGNED DOCUMENT</button>
-</div>
 
 <div class="grid">
 
@@ -143,20 +102,18 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   <select id="docSelectMode" onchange="toggleDocInputMode()">
     <option value="pdf-single">Single PDF Document</option>
     <option value="pdf-folder">PDF Folder</option>
-    <option value="word-single">Single Word Document (.DOCX)</option>
-    <option value="word-folder">Word Folder (.DOCX)</option>
-  </select>
+    </select>
 
   <div id="fileInputContainer" style="margin-top:6px"></div>
-  <div id="sourceStatus" class="source-status"><strong>PDF:</strong> Select one PDF document.</div>
+  <div id="sourceStatus" class="source-status"><strong>PDF ONLY:</strong> Select one PDF or a PDF folder/batch.</div>
   <button type="button" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearAllSourceDocuments()">CLEAR SOURCE DOCUMENTS</button>
-  <div class="upload-note">PDF and Word uploads are kept separate so the preview and controls always match the selected document type.</div>
+  <div class="upload-note">PDF uploads only. Single PDF exports as one PDF; PDF folder/batch exports as one ZIP.</div>
 
   <h3 class="yellow" style="margin-top:18px">2. Signature Options</h3>
   <label for="sigMode">Signature Source</label>
   <select id="sigMode" onchange="toggleSigMode()">
     <option value="upload">Upload PNG / JPG</option>
-    <option value="draw">Draw New Signature</option>
+    <option value="draw">✍️ Manual Pen Signature</option>
   </select>
 
   <div id="uploadBox">
@@ -217,7 +174,7 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
     </div>
   </div>
   <div id="initSpecificBox" style="display:none"><label for="initSpecificPage">Target Page Number</label><input type="number" id="initSpecificPage" value="1" min="1"></div>
-  <div class="export-note" style="margin-top:10px"><strong>Word protection:</strong> Word signing is locked to the original DOCX package. The body is never reconstructed or reflowed. The signature/initials are added as floating footer overlays so existing lines, fonts, tables and page breaks are not rewritten.</div>
+  
 
   <button type="button" id="startBtn" class="btn-main" onclick="processBatch()">START BATCH PROCESSING</button>
   <button type="button" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearBatchOutputOnly()">CLEAR BATCH OUTPUT</button>
@@ -229,11 +186,8 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   <div class="preview-wrapper" id="previewWrapper">
     <canvas id="pdfCanvas"></canvas>
     <div id="docPagesContainer"></div>
-    <div id="wordPreviewBadge" class="word-preview-badge hidden">WORD • A4 PAGE</div>
-    <div id="sigDrag" class="drag-element">Signature</div>
+        <div id="sigDrag" class="drag-element">Signature</div>
     <div id="initDrag" class="drag-element"></div>
-    <div id="signedSigOverlay" class="signed-word-overlay"></div>
-    <div id="signedInitOverlay" class="signed-word-overlay initials"></div>
   </div>
 
   <div class="nav-controls">
@@ -292,18 +246,13 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   <div id="log">--- Ready ---<br></div>
   <button type="button" id="downloadBtn" class="btn-main" style="background:var(--nebula-yellow);color:#000" onclick="downloadSignedOutput()" disabled>DOWNLOAD SIGNED FILE</button>
   <button type="button" id="clearDownloadBtn" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearDownloadedOutput()">CLEAR DOWNLOADED / GENERATED OUTPUT</button>
-  <div id="exportNote" class="export-note"><strong>Export rule:</strong> A single upload always downloads as one file. A folder upload is the only mode that downloads a ZIP. Word files are kept as the original DOCX package and only the signature/initials overlay is added.</div>
-  <div class="word-lock" id="wordLockNotice"><strong>WORD LOCK:</strong> The original DOCX body is never rebuilt from extracted text. Fonts, lines, tables, spacing and existing page structure are left untouched. Only signature/initials drawing objects are added.</div>
+  <div id="exportNote" class="export-note"><strong>Export rule:</strong> Single PDF = one signed PDF. PDF folder/batch = one ZIP containing all signed PDFs.</div>
 </div>
 </div>
 </div>
 
 <script>
 "use strict";
-
-/* =========================
-   NEBULA BATCH SIGNER CORE
-   ========================= */
 
 const A4_W = 794;
 const A4_H = 1123;
@@ -319,1267 +268,229 @@ const state = {
   inspectingSigned: false,
   signedOutputs: new Map(),
   zip: null,
+  batchZipBlob: null,
   sigBytes: null,
   placement: {
     sig: { x: 60 / A4_W, y: 550 / A4_H, w: 120 / A4_W, h: 40 / A4_H, page: 1 },
     init: { x: 350 / A4_W, y: 560 / A4_H, w: 60 / A4_W, h: 25 / A4_H, page: 1 }
   },
   drag: null,
-  wordSections: [],
   libraryError: null,
-  libraryReady: false
+  libraryReady: false,
+  importMode: "pdf-single"
 };
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
+function logMessage(message){ const el=$("log"); if(!el)return; el.textContent+=String(message)+"\n"; el.scrollTop=el.scrollHeight; }
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function isPdf(file){return !!file && /\.pdf$/i.test(file.name);}
+function isFolderMode(){return state.importMode === "pdf-folder";}
+function baseName(name){return name.replace(/\.[^.]+$/,'');}
+function setStatus(text){if($("statusText"))$("statusText").innerText=text;}
+function setText(id,text){if($(id))$(id).innerText=text;}
 
-function logMessage(message) {
-  const el = $("log");
-  if (!el) return;
-  el.textContent += String(message) + "\n";
-  el.scrollTop = el.scrollHeight;
-}
+function deps(){return {JSZip:window.JSZip,PDFLib:window.PDFLib,pdfjsLib:window.pdfjsLib};}
+function requireLibrary(name){const d=deps();if(!d[name])throw new Error(`${name} library is not available.`);return d[name];}
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (m) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-  }[m]));
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function isPdf(file) { return !!file && /\.pdf$/i.test(file.name); }
-function isDocx(file) { return !!file && /\.docx$/i.test(file.name); }
-function isFolderMode() { return $("docSelectMode")?.value.endsWith("-folder"); }
-function currentType() { return $("docSelectMode")?.value.startsWith("pdf") ? "pdf" : "word"; }
-function baseName(name) { return name.replace(/\.[^.]+$/, ""); }
-
-function setStatus(text) { if ($("statusText")) $("statusText").innerText = text; }
-function setText(id, text) { if ($(id)) $(id).innerText = text; }
-
-function deps() {
-  return {
-    JSZip: window.JSZip,
-    PDFLib: window.PDFLib,
-    pdfjsLib: window.pdfjsLib,
-    docx: window.docx
-  };
-}
-
-function loadExternalScript(url, timeoutMs = 15000) {
-  return new Promise((resolve, reject) => {
-    if ([...document.scripts].some(s => s.src === url)) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    let settled = false;
-    const finish = (fn, value) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(value);
-    };
-    const timer = setTimeout(() => finish(reject, new Error(`Timed out loading ${url}`)), timeoutMs);
-    script.src = url;
-    script.async = false;
-    script.onload = () => finish(resolve);
-    script.onerror = () => finish(reject, new Error(`Failed to load ${url}`));
-    document.head.appendChild(script);
+function loadExternalScript(url,timeoutMs=15000){
+  return new Promise((resolve,reject)=>{
+    if([...document.scripts].some(s=>s.src===url)){resolve();return;}
+    const script=document.createElement("script"); let settled=false;
+    const finish=(fn,value)=>{if(settled)return;settled=true;clearTimeout(timer);fn(value);};
+    const timer=setTimeout(()=>finish(reject,new Error(`Timed out loading ${url}`)),timeoutMs);
+    script.src=url; script.async=false; script.onload=()=>finish(resolve); script.onerror=()=>finish(reject,new Error(`Failed to load ${url}`)); document.head.appendChild(script);
   });
 }
-
-async function loadBrowserLibraries() {
-  const groups = [
-    [
-      ["JSZip", "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"],
-      ["JSZip", "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"]
-    ],
-    [
-      ["PDFLib", "https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"],
-      ["PDFLib", "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"]
-    ],
-    [
-      ["pdfjsLib", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"],
-      ["pdfjsLib", "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js"]
-    ],
-    [
-      ["docx", "https://cdn.jsdelivr.net/npm/docx-preview@0.4.0/dist/docx-preview.min.js"],
-      ["docx", "https://unpkg.com/docx-preview@0.4.0/dist/docx-preview.min.js"]
-    ]
+async function loadBrowserLibraries(){
+  const groups=[
+    [["JSZip","https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"],["JSZip","https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"]],
+    [["PDFLib","https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"],["PDFLib","https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"]],
+    [["pdfjsLib","https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"],["pdfjsLib","https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js"]]
   ];
-
-  for (const candidates of groups) {
-    const globalName = candidates[0][0];
-    if (window[globalName]) continue;
-    let loaded = false;
-    let lastError = null;
-    for (const [, url] of candidates) {
-      try {
-        await loadExternalScript(url);
-        if (window[globalName]) { loaded = true; break; }
-      } catch (e) { lastError = e; }
-    }
-    if (!loaded) throw lastError || new Error(`Could not load ${globalName}`);
-  }
-
-  if (window.pdfjsLib) {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-    window.pdfjsLib.GlobalWorkerOptions.workerSrcFallback =
-      "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
-  }
+  for(const candidates of groups){const globalName=candidates[0][0];if(window[globalName])continue;let loaded=false,lastError=null;for(const [,url] of candidates){try{await loadExternalScript(url);if(window[globalName]){loaded=true;break;}}catch(e){lastError=e;}}if(!loaded)throw lastError||new Error(`Could not load ${globalName}`);}
+  if(window.pdfjsLib)window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+}
+async function waitForLibraries(timeoutMs=10000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){if(window.JSZip&&window.PDFLib&&window.pdfjsLib){state.libraryReady=true;state.libraryError=null;return true;}await sleep(100);}
+  const d=deps(),missing=[];if(!d.JSZip)missing.push("JSZip");if(!d.PDFLib)missing.push("PDF-Lib");if(!d.pdfjsLib)missing.push("PDF.js");
+  state.libraryError=`Missing browser libraries: ${missing.join(", ")}. Check internet/CDN access and reload.`;state.libraryReady=false;logMessage("[LIBRARY ERROR] "+state.libraryError);setStatus(state.libraryError);return false;
 }
 
-async function waitForLibraries(timeoutMs = 10000) {
-  const started = Date.now();
-  while (Date.now() - started < timeoutMs) {
-    if (window.JSZip && window.PDFLib && window.pdfjsLib && window.docx) {
-      state.libraryReady = true;
-      state.libraryError = null;
-      try {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
-      } catch (_) {}
-      return true;
-    }
-    await sleep(100);
-  }
-
-  const missing = [];
-  const d = deps();
-  if (!d.JSZip) missing.push("JSZip");
-  if (!d.PDFLib) missing.push("PDF-Lib");
-  if (!d.pdfjsLib) missing.push("PDF.js");
-  if (!d.docx) missing.push("DOCX preview");
-  state.libraryError = `Missing browser libraries: ${missing.join(", ")}. Check internet/CDN access and reload.`;
-  state.libraryReady = false;
-  logMessage("[LIBRARY ERROR] " + state.libraryError);
-  setStatus(state.libraryError);
-  return false;
-}
-
-function requireLibrary(name) {
-  const d = deps();
-  if (!d[name]) throw new Error(`${name} library is not available.`);
-  return d[name];
-}
-
-/* ---------- signature drawing ---------- */
-const drawCanvas = $("drawCanvas");
-const drawCtx = drawCanvas?.getContext("2d");
-let drawActive = false;
-let canvasZoom = 1;
-
-function clearDrawCanvas() {
-  if (drawCtx && drawCanvas) drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-  canvasZoom = 1;
-  if (drawCanvas) drawCanvas.style.transform = "scale(1)";
-  state.sigBytes = null;
-  hideBox("sigDrag");
-  logMessage("Signature drawing cleared.");
-}
-
-function zoomCanvas(factor) {
-  canvasZoom = Math.max(0.5, Math.min(3, canvasZoom * factor));
-  if (drawCanvas) drawCanvas.style.transform = `scale(${canvasZoom})`;
-}
-
-async function saveDrawnSignature() {
-  if (!drawCanvas) return;
-  const blob = await new Promise(resolve => drawCanvas.toBlob(resolve, "image/png"));
-  if (!blob) throw new Error("Could not create signature image.");
-  state.sigBytes = await blob.arrayBuffer();
-  showBox("sigDrag");
-  $("drawBox").style.display = "none";
-  await repositionBoxes();
-  logMessage("Drawn signature saved.");
-}
-
-function clearSignatureOnly() {
+/* ---------- manual pen signature ---------- */
+const drawCanvas=$("drawCanvas");
+const drawCtx=drawCanvas?.getContext("2d");
+let drawActive=false,canvasZoom=1;
+function clearDrawCanvas(){if(drawCtx&&drawCanvas)drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);canvasZoom=1;if(drawCanvas)drawCanvas.style.transform="scale(1)";state.sigBytes=null;showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Manual pen signature cleared. Signature and initials blocks remain on the PDF page.");}
+function zoomCanvas(factor){canvasZoom=Math.max(.5,Math.min(3,canvasZoom*factor));if(drawCanvas)drawCanvas.style.transform=`scale(${canvasZoom})`;}
+async function saveDrawnSignature(){if(!drawCanvas)return;const blob=await new Promise(resolve=>drawCanvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create signature image.");state.sigBytes=await blob.arrayBuffer();state.placement.sig.page=state.currentPage;showBox("sigDrag");$("drawBox").style.display="none";await repositionBoxes();logMessage("Manual pen signature saved.");}
+function clearSignatureOnly(){
   clearDrawCanvas();
-  if ($("sigImageInput")) $("sigImageInput").value = "";
-  state.sigBytes = null;
-  hideBox("sigDrag");
-  logMessage("Signature cleared.");
-}
-
-function clearInitialsOnly() {
-  $("initialsText").value = "";
-  hideBox("initDrag");
-  logMessage("Initials cleared.");
-}
-
-function recenterSignature() {
-  state.placement.sig = { x: 0.5 - state.placement.sig.w / 2, y: 0.78 - state.placement.sig.h / 2, w: state.placement.sig.w, h: state.placement.sig.h };
+  if($("sigImageInput"))$("sigImageInput").value="";
+  state.sigBytes=null;
   showBox("sigDrag");
+  showBox("initDrag");
+  if($("sigMode")){ $("sigMode").value="draw"; toggleSigMode(); }
+  if($("drawBox"))$("drawBox").style.display="block";
   repositionBoxes();
+  logMessage("Signature cleared. Manual Pen Signature panel opened for a new signature.");
+  setStatus("Signature cleared. Draw a new signature using Manual Pen Signature.");
+}
+function clearInitialsOnly(){$("initialsText").value="";$("initDrag").innerText="";showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Initials cleared. Empty initials block remains on the PDF page.");}
+function recenterSignature(){state.placement.sig={x:.5-state.placement.sig.w/2,y:.78-state.placement.sig.h/2,w:state.placement.sig.w,h:state.placement.sig.h,page:state.currentPage};showBox("sigDrag");repositionBoxes();}
+function recenterInitials(){state.placement.init={x:.5-state.placement.init.w/2,y:.72-state.placement.init.h/2,w:state.placement.init.w,h:state.placement.init.h,page:state.currentPage};showBox("initDrag");repositionBoxes();}
+function resizeSignatureBox(){const width=Math.max(10,Number($("sigW").value)||120),height=Math.max(10,Number($("sigH").value)||40),page=activePageRect();if(page){state.placement.sig.w=Math.min(1,width/page.width);state.placement.sig.h=Math.min(1,height/page.height);}repositionBoxes();}
+function resizeInitialsBox(){const fontSize=Math.max(8,Number($("initFontSize").value)||14);$("initDrag").style.fontSize=fontSize+"px";repositionBoxes();}
+function updateInitialsLabel(){state.placement.init.page=state.currentPage;const value=$("initialsText").value.trim();$("initDrag").innerText=value;showBox("sigDrag");showBox("initDrag");repositionBoxes();}
+if(drawCanvas&&drawCtx){drawCanvas.addEventListener("pointerdown",e=>{drawActive=true;drawCanvas.setPointerCapture?.(e.pointerId);const rect=drawCanvas.getBoundingClientRect();drawCtx.beginPath();drawCtx.moveTo((e.clientX-rect.left)/canvasZoom,(e.clientY-rect.top)/canvasZoom);});drawCanvas.addEventListener("pointermove",e=>{if(!drawActive)return;const rect=drawCanvas.getBoundingClientRect();drawCtx.lineTo((e.clientX-rect.left)/canvasZoom,(e.clientY-rect.top)/canvasZoom);drawCtx.stroke();});["pointerup","pointercancel","pointerleave"].forEach(ev=>drawCanvas.addEventListener(ev,()=>drawActive=false));}
+
+/* ---------- UI ---------- */
+function showBox(id){if($(id))$(id).style.display="flex";}
+function hideBox(id){if($(id))$(id).style.display="none";}
+function toggleSigMode(){const mode=$("sigMode").value;$("uploadBox").style.display=mode==="upload"?"block":"none";$("drawBox").style.display=mode==="draw"?"block":"none";}
+function toggleRuleInputs(type){const select=$(type==="sig"?"sigEndMode":"initEndMode"),box=$(type==="sig"?"sigSpecificBox":"initSpecificBox");if(select&&box)box.style.display=select.value==="specific"?"block":"none";}
+function toggleAiPanelSize(){const panel=$("aiPanel"),button=$("expandAiBtn");panel.classList.toggle("expanded");button.innerText=panel.classList.contains("expanded")?"Minimize ⤡":"Increase View ⤢";}
+function clearAiScanResults(){$("aiResultsBox").innerHTML="Awaiting AI scan...";$("aiCustomPrompt").value="";}
+
+/* ---------- PDF upload only ---------- */
+function toggleDocInputMode(){
+  const mode=$("docSelectMode").value,container=$("fileInputContainer");container.innerHTML="";
+  const input=document.createElement("input");input.type="file";input.id="sourceFileInput";input.multiple=mode==="pdf-folder";input.accept=".pdf,application/pdf";
+  if(mode==="pdf-folder"){input.setAttribute("webkitdirectory","");input.setAttribute("directory","");}
+  input.addEventListener("change",handleFileSelection);container.appendChild(input);
+  state.currentSourceType="pdf";state.importMode=mode;setText("previewTitle","A4 PDF Document Preview");setText("sourceStatus",mode==="pdf-folder"?"PDF BATCH mode: select a folder containing PDF files.":"PDF SINGLE mode: select one PDF file.");clearPreview();
+}
+function clearPreview(){state.loadedPdf=null;state.pdfPage=null;state.currentPage=1;state.totalPages=1;if($("pdfCanvas")){$("pdfCanvas").width=1;$("pdfCanvas").height=1;$("pdfCanvas").style.display="block";}if($("docPagesContainer")){$("docPagesContainer").innerHTML="";$("docPagesContainer").style.display="none";}hideSignedOverlays();setText("navFileTracker","File 0 / 0");setText("navPageTracker","Page 1 / 1");}
+async function handleFileSelection(event){
+  const files=Array.from(event.target.files||[]).filter(isPdf);
+  state.importMode=$("docSelectMode").value;
+  state.selectedFiles=state.importMode==="pdf-single"?files.slice(0,1):files;
+  state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.inspectingSigned=false;state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;state.batchZipBlob=null;
+  setText("countDetected",state.selectedFiles.length);setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;
+  if(!state.selectedFiles.length){setStatus("No valid PDF selected.");return;}
+  setStatus(`Loaded ${state.selectedFiles.length} PDF document(s).`);updateExportButton();await renderCurrentFile();
 }
 
-function recenterInitials() {
-  state.placement.init = { x: 0.5 - state.placement.init.w / 2, y: 0.72 - state.placement.init.h / 2, w: state.placement.init.w, h: state.placement.init.h };
-  if ($("initialsText").value.trim()) showBox("initDrag");
-  repositionBoxes();
+/* ---------- PDF preview ---------- */
+function activePageRect(){const canvas=$("pdfCanvas");return canvas&&canvas.style.display!=="none"?canvas.getBoundingClientRect():null;}
+function activePageElement(){return $("pdfCanvas");}
+function updateTracker(){setText("navPageTracker",`Page ${state.currentPage} / ${state.totalPages}`);setText("navFileTracker",`File ${state.selectedFiles.length?state.currentFileIndex+1:0} / ${state.selectedFiles.length}`);}
+async function renderPdfPage(pageNumber){
+  if(!state.loadedPdf)return;const page=await state.loadedPdf.getPage(pageNumber);state.pdfPage=page;const canvas=$("pdfCanvas"),wrapper=$("previewWrapper"),base=page.getViewport({scale:1});
+  const scale=Math.min(Math.max(1,wrapper.clientWidth-8)/base.width,Math.max(1,wrapper.clientHeight-8)/base.height);const viewport=page.getViewport({scale});
+  canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);canvas.style.width=viewport.width+"px";canvas.style.height=viewport.height+"px";
+  await page.render({canvasContext:canvas.getContext("2d",{alpha:false}),viewport}).promise;state.currentPage=pageNumber;updateTracker();await repositionBoxes();
 }
-
-function resizeSignatureBox() {
-  const width = Math.max(10, Number($("sigW").value) || 120);
-  const height = Math.max(10, Number($("sigH").value) || 40);
-  const page = activePageRect();
-  if (page) {
-    state.placement.sig.w = Math.min(1, width / page.width);
-    state.placement.sig.h = Math.min(1, height / page.height);
-  }
-  repositionBoxes();
+async function renderCurrentFile(){
+  if(!state.selectedFiles.length)return;const file=state.selectedFiles[state.currentFileIndex];if(!file)return;state.currentSourceType="pdf";updateTracker();
+  const signedBytes=state.inspectingSigned?state.signedOutputs.get(file.name):null;if(state.inspectingSigned&&!signedBytes)throw new Error("No signed PDF output is available for the selected document.");
+  setText("previewTitle",state.inspectingSigned?"A4 PDF Document Preview — SIGNED":"A4 PDF Document Preview");$("pdfCanvas").style.display="block";$("docPagesContainer").style.display="none";requireLibrary("pdfjsLib");
+  state.loadedPdf=await window.pdfjsLib.getDocument({data:signedBytes||await file.arrayBuffer()}).promise;state.totalPages=state.loadedPdf.numPages;state.currentPage=Math.min(Math.max(1,state.currentPage),state.totalPages);await renderPdfPage(state.currentPage);
 }
-
-function resizeInitialsBox() {
-  const fontSize = Math.max(8, Number($("initFontSize").value) || 14);
-  $("initDrag").style.fontSize = fontSize + "px";
-  repositionBoxes();
-}
-
-function updateInitialsLabel() {
-  if (!state.placement.init.page) state.placement.init.page = state.currentPage;
-  const value = $("initialsText").value.trim();
-  $("initDrag").innerText = value;
-  if (value) showBox("initDrag"); else hideBox("initDrag");
-  repositionBoxes();
-}
-
-if (drawCanvas && drawCtx) {
-  drawCanvas.addEventListener("pointerdown", (e) => {
-    drawActive = true;
-    drawCanvas.setPointerCapture?.(e.pointerId);
-    const rect = drawCanvas.getBoundingClientRect();
-    drawCtx.beginPath();
-    drawCtx.moveTo((e.clientX - rect.left) / canvasZoom, (e.clientY - rect.top) / canvasZoom);
-  });
-  drawCanvas.addEventListener("pointermove", (e) => {
-    if (!drawActive) return;
-    const rect = drawCanvas.getBoundingClientRect();
-    drawCtx.lineTo((e.clientX - rect.left) / canvasZoom, (e.clientY - rect.top) / canvasZoom);
-    drawCtx.stroke();
-  });
-  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => drawCanvas.addEventListener(ev, () => { drawActive = false; }));
-}
-
-/* ---------- UI helpers ---------- */
-function showBox(id) { if ($(id)) $(id).style.display = "flex"; }
-function hideBox(id) { if ($(id)) $(id).style.display = "none"; }
-
-function toggleSigMode() {
-  const mode = $("sigMode").value;
-  $("uploadBox").style.display = mode === "upload" ? "block" : "none";
-  $("drawBox").style.display = mode === "draw" ? "block" : "none";
-}
-
-function toggleRuleInputs(type) {
-  const select = $(type === "sig" ? "sigEndMode" : "initEndMode");
-  const box = $(type === "sig" ? "sigSpecificBox" : "initSpecificBox");
-  if (select && box) box.style.display = select.value === "specific" ? "block" : "none";
-}
-
-function toggleAiPanelSize() {
-  const panel = $("aiPanel");
-  const button = $("expandAiBtn");
-  panel.classList.toggle("expanded");
-  button.innerText = panel.classList.contains("expanded") ? "Minimize ⤡" : "Increase View ⤢";
-}
-
-function clearAiScanResults() {
-  $("aiResultsBox").innerHTML = "Awaiting AI scan...";
-  $("aiCustomPrompt").value = "";
-}
-
-/* ---------- document upload ---------- */
-function toggleDocInputMode() {
-  const mode = $("docSelectMode").value;
-  const container = $("fileInputContainer");
-  container.innerHTML = "";
-
-  const input = document.createElement("input");
-  input.type = "file";
-  input.id = "sourceFileInput";
-  input.multiple = mode.endsWith("-folder");
-
-  const isPdfMode = mode.startsWith("pdf");
-  if (mode.endsWith("-folder")) {
-    input.setAttribute("webkitdirectory", "");
-    input.setAttribute("directory", "");
-  }
-  if (!mode.endsWith("-folder")) {
-    input.accept = isPdfMode ? ".pdf,application/pdf" : ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  }
-
-  input.addEventListener("change", handleFileSelection);
-  container.appendChild(input);
-
-  state.currentSourceType = isPdfMode ? "pdf" : "word";
-  setText("previewTitle", isPdfMode ? "A4 PDF Document Preview" : "A4 Word Document Preview");
-  setText("sourceStatus", isPdfMode ? "PDF mode: select a PDF document." : "Word mode: select a .DOCX document.");
-  clearPreview();
-}
-
-function clearPreview() {
-  state.loadedPdf = null;
-  state.pdfPage = null;
-  state.currentPage = 1;
-  state.totalPages = 1;
-  state.wordSections = [];
-  if ($("pdfCanvas")) { $("pdfCanvas").width = 1; $("pdfCanvas").height = 1; $("pdfCanvas").style.display = state.currentSourceType === "pdf" ? "block" : "none"; }
-  if ($("docPagesContainer")) { $("docPagesContainer").innerHTML = ""; $("docPagesContainer").style.display = "none"; }
-  $("wordPreviewBadge")?.classList.add("hidden");
-  $("wordLockNotice").style.display = "none";
-  setText("navFileTracker", "File 0 / 0");
-  setText("navPageTracker", "Page 1 / 1");
-  hideSignedOverlays();
-}
-
-async function handleFileSelection(event) {
-  const mode = $("docSelectMode").value;
-  const expectPdf = mode.startsWith("pdf");
-  const files = Array.from(event.target.files || []).filter(f => expectPdf ? isPdf(f) : isDocx(f));
-
-  state.selectedFiles = mode.endsWith("-single") ? files.slice(0, 1) : files;
-  state.currentFileIndex = 0;
-  state.currentPage = 1;
-  state.totalPages = 1;
-  state.inspectingSigned = false;
-  state.signedOutputs.clear();
-  state.zip = null;
-
-  setText("countDetected", state.selectedFiles.length);
-  setText("countCompleted", "0");
-  setText("countFailed", "0");
-  $("progressFill").style.width = "0%";
-  $("downloadBtn").disabled = true;
-  $("inspectBtn").disabled = true;
-  $("unsignedBtn").disabled = true;
-
-  if (!state.selectedFiles.length) {
-    setStatus(expectPdf ? "No valid PDF selected." : "No valid DOCX selected.");
-    return;
-  }
-
-  setStatus(`Loaded ${state.selectedFiles.length} document(s).`);
-  await renderCurrentFile();
-}
-
-/* ---------- preview ---------- */
-function activePageRect() {
-  if (state.currentSourceType === "pdf") {
-    const canvas = $("pdfCanvas");
-    return canvas && canvas.style.display !== "none" ? canvas.getBoundingClientRect() : null;
-  }
-  return state.wordSections[state.currentPage - 1]?.getBoundingClientRect?.() || null;
-}
-
-function activePageElement() {
-  if (state.currentSourceType === "pdf") return $("pdfCanvas");
-  return state.wordSections[state.currentPage - 1] || null;
-}
-
-function updateTracker() {
-  setText("navPageTracker", `Page ${state.currentPage} / ${state.totalPages}`);
-  setText("navFileTracker", `File ${state.selectedFiles.length ? state.currentFileIndex + 1 : 0} / ${state.selectedFiles.length}`);
-}
-
-function renderPdfPage(pageNumber) {
-  if (!state.loadedPdf) return;
-  return state.loadedPdf.getPage(pageNumber).then(async page => {
-    state.pdfPage = page;
-    const canvas = $("pdfCanvas");
-    const wrapper = $("previewWrapper");
-    const base = page.getViewport({ scale: 1 });
-    const scale = Math.min(
-      Math.max(1, wrapper.clientWidth - 8) / base.width,
-      Math.max(1, wrapper.clientHeight - 8) / base.height
-    );
-    const viewport = page.getViewport({ scale });
-    canvas.width = Math.ceil(viewport.width);
-    canvas.height = Math.ceil(viewport.height);
-    canvas.style.width = viewport.width + "px";
-    canvas.style.height = viewport.height + "px";
-    const ctx = canvas.getContext("2d", { alpha: false });
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    state.currentPage = pageNumber;
-    updateTracker();
-    await repositionBoxes();
-    if (state.inspectingSigned) showSignedOverlays();
-  });
-}
-
-async function renderWordDocument(source, sourceName = "document.docx") {
-  const docxLib = requireLibrary("docx");
-  const container = $("docPagesContainer");
-
-  container.innerHTML = "";
-  container.style.display = "block";
-  $("pdfCanvas").style.display = "none";
-  $("wordPreviewBadge").classList.remove("hidden");
-  $("wordLockNotice").style.display = "block";
-  state.wordSections = [];
-
-  let bytes;
-  if (source instanceof ArrayBuffer) bytes = source;
-  else if (source instanceof Uint8Array) bytes = source;
-  else if (source instanceof Blob) bytes = await source.arrayBuffer();
-  else throw new Error("Unsupported DOCX preview source.");
-
-  await docxLib.renderAsync(bytes, container, null, {
-    className: "docx",
-    inWrapper: true,
-    ignoreWidth: false,
-    ignoreHeight: false,
-    ignoreFonts: false,
-    breakPages: true,
-    ignoreLastRenderedPageBreak: false,
-    renderHeaders: true,
-    renderFooters: true,
-    renderFootnotes: true,
-    renderEndnotes: true,
-    experimental: false,
-    debug: false
-  });
-
-  const wrapper = container.querySelector(".docx-wrapper") || container;
-  const sections = Array.from(wrapper.querySelectorAll("section"));
-  if (!sections.length) {
-    throw new Error(`DOCX preview created no pages for ${sourceName}.`);
-  }
-
-  state.wordSections = sections;
-
-  sections.forEach((section, index) => {
-    section.dataset.nebulaPage = String(index + 1);
-    section.style.position = "absolute";
-    section.style.left = "50%";
-    section.style.top = "50%";
-    section.style.margin = "0";
-    section.style.transformOrigin = "center center";
-    section.style.display = index === 0 ? "block" : "none";
-    section.style.maxHeight = "none";
-    section.style.overflow = "visible";
-  });
-
-  state.totalPages = sections.length;
-  state.currentPage = Math.min(Math.max(1, state.currentPage), state.totalPages);
-
-  await applyWordPage();
-
-  logMessage(`DOCX loaded successfully: ${state.totalPages} page(s).`);
-}
-
-async function applyWordPage() {
-  const container = $("docPagesContainer");
-  const sections = state.wordSections;
-  if (!sections.length) return;
-  sections.forEach(s => { s.style.display = "none"; });
-  const active = sections[state.currentPage - 1];
-  if (!active) return;
-
-  active.style.display = "block";
-  await new Promise(r => requestAnimationFrame(r));
-  const rect = active.getBoundingClientRect();
-  const width = Math.max(1, rect.width || parseFloat(getComputedStyle(active).width) || A4_W);
-  const height = Math.max(1, rect.height || parseFloat(getComputedStyle(active).height) || A4_H);
-  const availableW = Math.max(20, container.clientWidth - 18);
-  const availableH = Math.max(20, container.clientHeight - 18);
-  const scale = Math.min(availableW / width, availableH / height);
-  active.style.transform = `translate(-50%, -50%) scale(${Math.max(0.05, scale)})`;
-  updateTracker();
-  await new Promise(r => requestAnimationFrame(r));
-  await repositionBoxes();
-}
-
-async function renderCurrentFile() {
-  if (!state.selectedFiles.length) return;
-  const file = state.selectedFiles[state.currentFileIndex];
-  if (!file) return;
-  state.currentSourceType = isPdf(file) ? "pdf" : "word";
-  updateTracker();
-  hideSignedOverlays();
-
-  const signedBytes = state.inspectingSigned ? state.signedOutputs.get(file.name) : null;
-  if (state.inspectingSigned && !signedBytes) {
-    throw new Error("No signed output is available for the selected document.");
-  }
-
-  if (isPdf(file)) {
-    setText("previewTitle", state.inspectingSigned ? "A4 PDF Document Preview — SIGNED" : "A4 PDF Document Preview");
-    $("pdfCanvas").style.display = "block";
-    $("docPagesContainer").style.display = "none";
-    $("wordPreviewBadge").classList.add("hidden");
-    requireLibrary("pdfjsLib");
-    state.loadedPdf = await window.pdfjsLib.getDocument({ data: signedBytes || await file.arrayBuffer() }).promise;
-    state.totalPages = state.loadedPdf.numPages;
-    state.currentPage = Math.min(Math.max(1, state.currentPage), state.totalPages);
-    await renderPdfPage(state.currentPage);
-    return;
-  }
-
-  setText("previewTitle", state.inspectingSigned ? "A4 Word Document Preview — SIGNED" : "A4 Word Document Preview");
-  await renderWordDocument(signedBytes || await file.arrayBuffer(), file.name);
-  /* No HTML signature overlay in signed mode. The generated DOCX itself is
-     rendered, so what the user sees is the actual output package. */
-  hideSignedOverlays();
-}
-
-/* ---------- page navigation ---------- */
-async function prevPage() {
-  if (state.currentPage <= 1) return;
-  state.currentPage--;
-  if (state.currentSourceType === "pdf") await renderPdfPage(state.currentPage);
-  else await applyWordPage();
-}
-
-async function nextPage() {
-  if (state.currentPage >= state.totalPages) return;
-  state.currentPage++;
-  if (state.currentSourceType === "pdf") await renderPdfPage(state.currentPage);
-  else await applyWordPage();
-}
-
-async function prevDocument() {
-  if (state.currentFileIndex <= 0) return;
-  state.currentFileIndex--;
-  state.currentPage = 1;
-  await renderCurrentFile();
-}
-
-async function nextDocument() {
-  if (state.currentFileIndex >= state.selectedFiles.length - 1) return;
-  state.currentFileIndex++;
-  state.currentPage = 1;
-  await renderCurrentFile();
-}
+async function prevPage(){if(state.currentPage<=1)return;state.currentPage--;await renderPdfPage(state.currentPage);}
+async function nextPage(){if(state.currentPage>=state.totalPages)return;state.currentPage++;await renderPdfPage(state.currentPage);}
+async function prevDocument(){if(state.currentFileIndex<=0)return;state.currentFileIndex--;state.currentPage=1;await renderCurrentFile();}
+async function nextDocument(){if(state.currentFileIndex>=state.selectedFiles.length-1)return;state.currentFileIndex++;state.currentPage=1;await renderCurrentFile();}
 
 /* ---------- normalized placement ---------- */
-function getPlacement(kind) { return state.placement[kind]; }
-
-function updatePlacementFromVisibleBox(kind) {
-  const box = $(kind === "sig" ? "sigDrag" : "initDrag");
-  const page = activePageRect();
-  const wrapper = $("previewWrapper");
-  if (!box || !page || !wrapper || box.style.display === "none") return;
-
-  const r = box.getBoundingClientRect();
-  const pageW = Math.max(1, page.width);
-  const pageH = Math.max(1, page.height);
-
-  state.placement[kind] = {
-    x: Math.max(0, Math.min(1, (r.left - page.left) / pageW)),
-    y: Math.max(0, Math.min(1, (r.top - page.top) / pageH)),
-    w: Math.max(0.001, Math.min(1, r.width / pageW)),
-    h: Math.max(0.001, Math.min(1, r.height / pageH)),
-    page: state.currentPage
-  };
-}
-
-async function repositionBoxes() {
-  const page = activePageRect();
-  const wrapper = $("previewWrapper");
-  if (!page || !wrapper) return;
-
-  const wr = wrapper.getBoundingClientRect();
-
-  for (const [kind, id] of [["sig", "sigDrag"], ["init", "initDrag"]]) {
-    const box = $(id);
-    if (!box) continue;
-
-    const hasContent = kind === "sig" ? !!state.sigBytes : !!$("initialsText").value.trim();
-    const p = getPlacement(kind);
-
-    if (!hasContent || state.inspectingSigned || Number(p.page || 1) !== Number(state.currentPage)) {
-      box.style.display = "none";
-      continue;
-    }
-
-    box.style.display = "flex";
-
-    const left = page.left - wr.left + p.x * page.width;
-    const top = page.top - wr.top + p.y * page.height;
-
-    box.style.left = left + "px";
-    box.style.top = top + "px";
-    box.style.width = Math.max(10, p.w * page.width) + "px";
-    box.style.height = Math.max(10, p.h * page.height) + "px";
-  }
-}
-
-function makeDraggable(box, kind) {
-  box.addEventListener("pointerdown", (event) => {
-    if (state.inspectingSigned || box.style.display === "none") return;
-    event.preventDefault();
-    box.setPointerCapture?.(event.pointerId);
-    state.drag = { kind, box, lastX: event.clientX, lastY: event.clientY };
-  });
-
-  box.addEventListener("pointermove", (event) => {
-    if (!state.drag || state.drag.box !== box) return;
-    const page = activePageRect();
-    const wrapper = $("previewWrapper");
-    if (!page || !wrapper) return;
-    const dx = event.clientX - state.drag.lastX;
-    const dy = event.clientY - state.drag.lastY;
-    state.drag.lastX = event.clientX;
-    state.drag.lastY = event.clientY;
-    const wr = wrapper.getBoundingClientRect();
-    const pageLeft = page.left - wr.left;
-    const pageTop = page.top - wr.top;
-    let left = parseFloat(box.style.left) || 0;
-    let top = parseFloat(box.style.top) || 0;
-    left = Math.max(pageLeft, Math.min(pageLeft + page.width - box.offsetWidth, left + dx));
-    top = Math.max(pageTop, Math.min(pageTop + page.height - box.offsetHeight, top + dy));
-    box.style.left = left + "px";
-    box.style.top = top + "px";
-    updatePlacementFromVisibleBox(kind);
-  });
-
-  ["pointerup", "pointercancel", "lostpointercapture"].forEach(ev =>
-    box.addEventListener(ev, () => { if (state.drag?.box === box) state.drag = null; })
-  );
-}
-
-makeDraggable($("sigDrag"), "sig");
-makeDraggable($("initDrag"), "init");
+function updatePlacementFromVisibleBox(kind){const box=$(kind==="sig"?"sigDrag":"initDrag"),page=activePageRect(),wrapper=$("previewWrapper");if(!box||!page||!wrapper||box.style.display==="none")return;const r=box.getBoundingClientRect(),pageW=Math.max(1,page.width),pageH=Math.max(1,page.height);state.placement[kind]={x:Math.max(0,Math.min(1,(r.left-page.left)/pageW)),y:Math.max(0,Math.min(1,(r.top-page.top)/pageH)),w:Math.max(.001,Math.min(1,r.width/pageW)),h:Math.max(.001,Math.min(1,r.height/pageH)),page:state.currentPage};}
+async function repositionBoxes(){const page=activePageRect(),wrapper=$("previewWrapper");if(!page||!wrapper)return;const wr=wrapper.getBoundingClientRect();for(const [kind,id] of [["sig","sigDrag"],["init","initDrag"]]){const box=$(id);if(!box)continue;const p=state.placement[kind];if(state.inspectingSigned||Number(p.page||1)!==Number(state.currentPage)){box.style.display="none";continue;}box.style.display="flex";box.style.left=(page.left-wr.left+p.x*page.width)+"px";box.style.top=(page.top-wr.top+p.y*page.height)+"px";box.style.width=Math.max(10,p.w*page.width)+"px";box.style.height=Math.max(10,p.h*page.height)+"px";box.innerText=kind==="init"?($("initialsText").value.trim()||""):"Signature";}}
+function makeDraggable(box,kind){box.addEventListener("pointerdown",event=>{if(state.inspectingSigned||box.style.display==="none")return;event.preventDefault();box.setPointerCapture?.(event.pointerId);state.drag={kind,box,lastX:event.clientX,lastY:event.clientY};});box.addEventListener("pointermove",event=>{if(!state.drag||state.drag.box!==box)return;const page=activePageRect(),wrapper=$("previewWrapper");if(!page||!wrapper)return;const dx=event.clientX-state.drag.lastX,dy=event.clientY-state.drag.lastY;state.drag.lastX=event.clientX;state.drag.lastY=event.clientY;const wr=wrapper.getBoundingClientRect(),pageLeft=page.left-wr.left,pageTop=page.top-wr.top;let left=parseFloat(box.style.left)||0,top=parseFloat(box.style.top)||0;left=Math.max(pageLeft,Math.min(pageLeft+page.width-box.offsetWidth,left+dx));top=Math.max(pageTop,Math.min(pageTop+page.height-box.offsetHeight,top+dy));box.style.left=left+"px";box.style.top=top+"px";updatePlacementFromVisibleBox(kind);});["pointerup","pointercancel","lostpointercapture"].forEach(ev=>box.addEventListener(ev,()=>{if(state.drag?.box===box)state.drag=null;}));}
+makeDraggable($("sigDrag"),"sig");makeDraggable($("initDrag"),"init");
 
 /* ---------- signing rules ---------- */
-function getRules() {
-  return {
-    sig: {
-      start: Math.max(1, parseInt($("sigStartPage").value, 10) || 1),
-      end: $("sigEndMode").value,
-      specific: Math.max(1, parseInt($("sigSpecificPage").value, 10) || 1)
-    },
-    init: {
-      start: Math.max(1, parseInt($("initStartPage").value, 10) || 1),
-      end: $("initEndMode").value,
-      specific: Math.max(1, parseInt($("initSpecificPage").value, 10) || 1)
-    },
-    initialsText: $("initialsText").value.trim(),
-    initFont: Math.max(8, Number($("initFontSize").value) || 14)
-  };
-}
+function getRules(){return {sig:{start:Math.max(1,parseInt($("sigStartPage").value,10)||1),end:$("sigEndMode").value,specific:Math.max(1,parseInt($("sigSpecificPage").value,10)||1)},init:{start:Math.max(1,parseInt($("initStartPage").value,10)||1),end:$("initEndMode").value,specific:Math.max(1,parseInt($("initSpecificPage").value,10)||1)},initialsText:$("initialsText").value.trim(),initFont:Math.max(8,Number($("initFontSize").value)||14)};}
+function shouldPlace(page,total,rule,placement){if(!rule)return false;if(rule.end==="all")return page>=Math.max(1,rule.start);if(rule.end==="last")return page===total;return page===Number(placement?.page||rule.specific||1);}
 
-function shouldPlace(page, total, rule, placement) {
-  if (!rule) return false;
-  if (rule.end === "all") return page >= Math.max(1, rule.start);
-  if (rule.end === "last") return page === total;
-
-  // "Specific Page" follows the page on which the user actually positioned
-  // the signing box. This prevents the object from jumping to another page.
-  const requested = Number(placement?.page || rule.specific || 1);
-  return page === requested;
-}
-
-/* ---------- signed preview ---------- */
-function hideSignedOverlays() {
-  for (const id of ["signedSigOverlay", "signedInitOverlay"]) {
-    const el = $(id);
-    if (!el) continue;
-    const oldUrl = el.dataset.url;
-    if (oldUrl) URL.revokeObjectURL(oldUrl);
-    el.dataset.url = "";
-    el.style.display = "none";
-    el.innerHTML = "";
-  }
-}
-
-/* Signed inspection renders the ACTUAL generated file. We deliberately do not
-   paint a second HTML overlay on top of it; that was the source of several
-   "missing/double/moved signature" failures. */
-function showSignedOverlays() { hideSignedOverlays(); }
-
-async function toggleSignedInspection() {
-  if (!state.signedOutputs.size) return;
-  state.inspectingSigned = !state.inspectingSigned;
-  $("inspectBtn").innerText = state.inspectingSigned ? "EXIT SIGNED DOCUMENT" : "VIEW SIGNED DOCUMENT";
-  $("inspectBtn").style.background = state.inspectingSigned ? "var(--nebula-orange)" : "var(--nebula-yellow)";
-  hideSignedOverlays();
-  $("sigDrag").style.display = state.inspectingSigned ? "none" : (state.sigBytes ? "flex" : "none");
-  $("initDrag").style.display = state.inspectingSigned ? "none" : ($("initialsText").value.trim() ? "flex" : "none");
-  try { await renderCurrentFile(); }
-  catch (err) { logMessage("[VIEW ERROR] " + (err.message || err)); setStatus("Signed document preview failed: " + (err.message || err)); }
-}
-
-async function viewUnsignedDocument() {
-  state.inspectingSigned = false;
-  $("inspectBtn").innerText = "VIEW SIGNED DOCUMENT";
-  $("inspectBtn").style.background = "var(--nebula-yellow)";
-  if (state.sigBytes) showBox("sigDrag");
-  if ($("initialsText").value.trim()) showBox("initDrag");
-  hideSignedOverlays();
-  try { await renderCurrentFile(); }
-  catch (err) { logMessage("[VIEW ERROR] " + (err.message || err)); }
-}
+/* ---------- signed inspection ---------- */
+function hideSignedOverlays(){}
 
 /* ---------- PDF signing ---------- */
-async function signPdf(file, rules) {
-  const PDFLib = requireLibrary("PDFLib");
-  const doc = await PDFLib.PDFDocument.load(await file.arrayBuffer());
-  const pages = doc.getPages();
-  const sigImage = state.sigBytes ? await doc.embedPng(state.sigBytes) : null;
-  const initImage = rules.initialsText ? await doc.embedPng(await createInitialsPng(rules.initialsText, rules.initFont)) : null;
-
-  pages.forEach((page, index) => {
-    const pageNumber = index + 1;
-    const { width, height } = page.getSize();
-
-    if (sigImage && shouldPlace(pageNumber, pages.length, rules.sig, state.placement.sig)) {
-      const p = state.placement.sig;
-      const x = Math.max(0, Math.min(width, p.x * width));
-      const y = Math.max(0, Math.min(height, height - (p.y + p.h) * height));
-      const w = Math.max(1, Math.min(width - x, p.w * width));
-      const h = Math.max(1, Math.min(height - y, p.h * height));
-      page.drawImage(sigImage, { x, y, width: w, height: h });
-    }
-
-    /* Initials are an image, not PDF text. This is intentional: the image
-       occupies exactly the same normalized x/y/w/h box the user dragged. */
-    if (initImage && shouldPlace(pageNumber, pages.length, rules.init, state.placement.init)) {
-      const p = state.placement.init;
-      const x = Math.max(0, Math.min(width, p.x * width));
-      const y = Math.max(0, Math.min(height, height - (p.y + p.h) * height));
-      const w = Math.max(1, Math.min(width - x, p.w * width));
-      const h = Math.max(1, Math.min(height - y, p.h * height));
-      page.drawImage(initImage, { x, y, width: w, height: h });
-    }
+async function createInitialsPng(text,fontSize){const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),size=Math.max(8,Number(fontSize)||14);ctx.font=`700 ${size}px Arial`;const width=Math.ceil(ctx.measureText(text).width+20),height=Math.ceil(size*1.7);canvas.width=width;canvas.height=height;ctx.font=`700 ${size}px Arial`;ctx.fillStyle="#111";ctx.textBaseline="middle";ctx.fillText(text,10,height/2);const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create initials image.");return await blob.arrayBuffer();}
+async function signPdf(file,rules){
+  const PDFLib=requireLibrary("PDFLib"),doc=await PDFLib.PDFDocument.load(await file.arrayBuffer()),pages=doc.getPages();
+  const sigImage=state.sigBytes?await doc.embedPng(state.sigBytes):null;const initImage=rules.initialsText?await doc.embedPng(await createInitialsPng(rules.initialsText,rules.initFont)):null;
+  pages.forEach((page,index)=>{const pageNumber=index+1,{width,height}=page.getSize();
+    if(sigImage&&shouldPlace(pageNumber,pages.length,rules.sig,state.placement.sig)){const p=state.placement.sig,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(sigImage,{x,y,width:w,height:h});}
+    if(initImage&&shouldPlace(pageNumber,pages.length,rules.init,state.placement.init)){const p=state.placement.init,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(initImage,{x,y,width:w,height:h});}
   });
   return await doc.save();
 }
 
-/* ---------- DOCX signing ---------- */
-function xmlEscape(value) {
-  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-}
-function emuFromTwips(twips) { return Math.round(Number(twips || 0) * 635); }
-function getPageSizeTwips(documentXml) {
-  const match = /<w:pgSz\b[^>]*w:w="(\d+)"[^>]*w:h="(\d+)"[^>]*\/?>(?:<\/w:pgSz>)?/i.exec(documentXml);
-  return match ? { w: Number(match[1]), h: Number(match[2]) } : { w: 11906, h: 16838 };
-}
-
-function addContentTypeDefault(xml, ext, type) {
-  if (new RegExp(`<Default[^>]+Extension=["']${ext}["']`, "i").test(xml)) return xml;
-  return xml.replace("</Types>", `<Default Extension="${ext}" ContentType="${type}"/></Types>`);
-}
-function nextRelId(xml) {
-  const ids = [...String(xml).matchAll(/Id="rId(\d+)"/g)].map(m => Number(m[1])).filter(Number.isFinite);
-  return `rId${ids.length ? Math.max(...ids) + 1 : 1}`;
-}
-function addRelationship(xml, rid, type, target) {
-  return xml.replace("</Relationships>", `<Relationship xmlns="http://schemas.openxmlformats.org/package/2006/relationships" Id="${rid}" Type="${type}" Target="${xmlEscape(target)}"/></Relationships>`);
-}
-function addImageRel(rels, rid, target) {
-  return addRelationship(rels, rid, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", target);
-}
-
-function drawingAnchorXml(rId, wTwips, hTwips, xTwips, yTwips, alt) {
-  const id = Math.floor(Math.random() * 900000) + 1000;
-  return `<w:drawing>` +
-    `<wp:anchor xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="251658240" behindDoc="0" locked="0" layoutInCell="1" allowOverlap="1">` +
-      `<wp:simplePos x="0" y="0"/>` +
-      `<wp:positionH relativeFrom="page"><wp:posOffset>${emuFromTwips(xTwips)}</wp:posOffset></wp:positionH>` +
-      `<wp:positionV relativeFrom="page"><wp:posOffset>${emuFromTwips(yTwips)}</wp:posOffset></wp:positionV>` +
-      `<wp:extent cx="${emuFromTwips(wTwips)}" cy="${emuFromTwips(hTwips)}"/>` +
-      `<wp:effectExtent l="0" t="0" r="0" b="0"/>` +
-      `<wp:wrapNone/>` +
-      `<wp:docPr id="${id}" name="${xmlEscape(alt)}" descr="${xmlEscape(alt)}"/>` +
-      `<wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
-      `<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
-        `<pic:pic>` +
-          `<pic:nvPicPr><pic:cNvPr id="${id}" name="${xmlEscape(alt)}"/><pic:cNvPicPr/></pic:nvPicPr>` +
-          `<pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
-          `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${emuFromTwips(wTwips)}" cy="${emuFromTwips(hTwips)}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
-        `</pic:pic>` +
-      `</a:graphicData></a:graphic>` +
-    `</wp:anchor>` +
-  `</w:drawing>`;
-}
-
-function appendDrawingToFooterXml(footerXml, drawing) {
-  if (footerXml.includes("NEBULA_SIGNING_ANCHOR")) {
-    return footerXml.replace("</w:p>", drawing + "</w:p>");
-  }
-  return footerXml.replace("</w:ftr>", `<w:p><w:r><w:rPr><w:noProof/></w:rPr>${drawing}</w:r></w:p></w:ftr>`);
-}
-
-function findFooterRef(sectionXml) {
-  const m = /<w:footerReference\b[^>]*w:type="default"[^>]*r:id="([^"]+)"[^>]*\/?>(?:<\/w:footerReference>)?/i.exec(sectionXml);
-  return m ? m[1] : null;
-}
-
-function replaceOrAddFooterRef(sectionXml, rid) {
-  const re = /<w:footerReference\b[^>]*w:type="default"[^>]*r:id="[^"]+"[^>]*\/?>(?:<\/w:footerReference>)?/i;
-  if (re.test(sectionXml)) return sectionXml.replace(re, `<w:footerReference w:type="default" r:id="${rid}"/>`);
-  return sectionXml.replace("</w:sectPr>", `<w:footerReference w:type="default" r:id="${rid}"/></w:sectPr>`);
-}
-
-async function ensureFooterPart(zip, documentRelsXml, sectionXml, footerState) {
-  const existingRid = findFooterRef(sectionXml);
-  if (existingRid) {
-    const relMatch = new RegExp(`<Relationship\\b[^>]*Id=["']${existingRid}["'][^>]*Target=["']([^"']+)["'][^>]*\\/?>(?:<\\/Relationship>)?`, "i").exec(documentRelsXml);
-    if (relMatch) {
-      const target = relMatch[1].replace(/^\//, "").replace(/^word\//, "word/");
-      const path = target.startsWith("word/") ? target : `word/${target}`;
-      const footerFile = zip.file(path);
-      if (footerFile) return { rid: existingRid, path };
-    }
-  }
-
-  const footerPath = `word/footer-nebula-${footerState.next++}.xml`;
-  let newRels = documentRelsXml;
-  const rid = nextRelId(newRels);
-  newRels = addRelationship(newRels, rid, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer", footerPath.replace(/^word\//, ""));
-  return { rid, path: footerPath, relsXml: newRels, created: true };
-}
-
-function blankFooterXml() {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:p/></w:ftr>`;
-}
-
-async function addDrawingToFooter(zip, footerPath, itemBytes, itemName, pos, pageTwips, altText) {
-  let footerXml = zip.file(footerPath) ? await zip.file(footerPath).async("string") : blankFooterXml();
-  const relPath = footerPath.replace(/^word\//, "word/_rels/") + ".rels";
-  let relsXml = zip.file(relPath)
-    ? await zip.file(relPath).async("string")
-    : `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`;
-
-  const rid = nextRelId(relsXml);
-  relsXml = addImageRel(relsXml, rid, `media/${itemName}`);
-  zip.file(`word/media/${itemName}`, itemBytes);
-
-  const x = pos.x * pageTwips.w;
-  const y = pos.y * pageTwips.h;
-  const w = pos.w * pageTwips.w;
-  const h = pos.h * pageTwips.h;
-  const drawing = drawingAnchorXml(rid, w, h, x, y, altText);
-  footerXml = appendDrawingToFooterXml(footerXml, drawing);
-  zip.file(footerPath, footerXml);
-  zip.file(relPath, relsXml);
-}
-
-async function createInitialsPng(text, fontSize) {
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  const size = Math.max(8, Number(fontSize) || 14);
-  ctx.font = `700 ${size}px Arial`;
-  const width = Math.ceil(ctx.measureText(text).width + 20);
-  const height = Math.ceil(size * 1.7);
-  canvas.width = width;
-  canvas.height = height;
-  ctx.font = `700 ${size}px Arial`;
-  ctx.fillStyle = "#111";
-  ctx.textBaseline = "middle";
-  ctx.fillText(text, 10, height / 2);
-  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-  if (!blob) throw new Error("Could not create initials image.");
-  return await blob.arrayBuffer();
-}
-
-function sectionXmlList(documentXml) {
-  return [...documentXml.matchAll(/<w:sectPr(?:\s[^>]*)?>[\s\S]*?<\/w:sectPr>/g)].map(m => ({ full: m[0], index: m.index }));
-}
-
-async function signDocx(file, rules) {
-  const JSZip = requireLibrary("JSZip");
-  const zip = await JSZip.loadAsync(await file.arrayBuffer());
-  const documentFile = zip.file("word/document.xml");
-  const relsFile = zip.file("word/_rels/document.xml.rels");
-  const ctFile = zip.file("[Content_Types].xml");
-  if (!documentFile || !relsFile || !ctFile) throw new Error("Invalid DOCX package: required Word parts are missing.");
-
-  let documentXml = await documentFile.async("string");
-  let documentRels = await relsFile.async("string");
-  let contentTypes = await ctFile.async("string");
-  const pageTwips = getPageSizeTwips(documentXml);
-  const sects = sectionXmlList(documentXml);
-  if (!sects.length) throw new Error("DOCX has no section properties.");
-
-  /* A DOCX does not store final page numbers in document.xml. It stores
-     sections, page breaks and layout instructions. Therefore a browser cannot
-     guarantee arbitrary page-N placement without a Word pagination engine.
-     For reliable visible output we anchor the signing object in the document
-     body, relative to the page, at the requested section boundary. Last-page
-     signing is anchored at the end of the document; all-page signing uses
-     section boundaries. PDF has true page-number placement. */
-  const targets = new Set();
-  const addTargets = (rule, placement) => {
-    if (rule.end === "last") {
-      targets.add(sects.length - 1);
-    } else if (rule.end === "all") {
-      for (let i = Math.max(0, rule.start - 1); i < sects.length; i++) targets.add(i);
-    } else {
-      const requestedPage = Number(placement?.page || rule.specific || 1);
-      const idx = Math.max(0, Math.min(sects.length - 1, requestedPage - 1));
-      targets.add(idx);
-      if (requestedPage > sects.length) {
-        logMessage(`[WORD SIGN] Requested page ${requestedPage} is beyond the DOCX section count. The nearest available section is used.`);
-      }
-    }
-  };
-  if (state.sigBytes) addTargets(rules.sig, state.placement.sig);
-  if (rules.initialsText) addTargets(rules.init, state.placement.init);
-  if (!targets.size) throw new Error("No signature or initials selected for signing.");
-
-  contentTypes = addContentTypeDefault(contentTypes, "png", "image/png");
-  let imageCounter = 1;
-
-  /* Insert anchors immediately before each targeted sectPr. This keeps the
-     drawing in document.xml rather than in a footer, avoiding footer clipping
-     and the common problem where Word shows the object outside the page. */
-  const insertionMap = new Map();
-  for (const sectionIndex of [...targets].sort((a,b) => b-a)) {
-    const currentSects = sectionXmlList(documentXml);
-    const sect = currentSects[sectionIndex];
-    if (!sect) continue;
-
-    let drawings = "";
-    if (state.sigBytes && shouldPlace(sectionIndex + 1, state.totalPages, rules.sig, state.placement.sig)) {
-      const name = `nebula-signature-${imageCounter++}.png`;
-      const rid = nextRelId(documentRels);
-      documentRels = addRelationship(documentRels, rid, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${name}`);
-      zip.file(`word/media/${name}`, state.sigBytes);
-      const p = state.placement.sig;
-      drawings += `<w:r><w:rPr><w:noProof/></w:rPr>${drawingAnchorXml(rid, p.w*pageTwips.w, p.h*pageTwips.h, p.x*pageTwips.w, p.y*pageTwips.h, "Nebula Signature")}</w:r>`;
-    }
-    if (rules.initialsText && shouldPlace(sectionIndex + 1, state.totalPages, rules.init, state.placement.init)) {
-      const name = `nebula-initials-${imageCounter++}.png`;
-      const initBytes = await createInitialsPng(rules.initialsText, rules.initFont);
-      const rid = nextRelId(documentRels);
-      documentRels = addRelationship(documentRels, rid, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image", `media/${name}`);
-      zip.file(`word/media/${name}`, initBytes);
-      const p = state.placement.init;
-      drawings += `<w:r><w:rPr><w:noProof/></w:rPr>${drawingAnchorXml(rid, p.w*pageTwips.w, p.h*pageTwips.h, p.x*pageTwips.w, p.y*pageTwips.h, "Nebula Initials")}</w:r>`;
-    }
-    if (drawings) {
-      const before = documentXml.slice(0, sect.index);
-      const after = documentXml.slice(sect.index);
-      documentXml = before + `<w:p><w:pPr><w:keepNext/></w:pPr>${drawings}</w:p>` + after;
-    }
-  }
-
-  zip.file("word/document.xml", documentXml);
-  zip.file("word/_rels/document.xml.rels", documentRels);
-  zip.file("[Content_Types].xml", contentTypes);
-  return await zip.generateAsync({ type: "uint8array", compression: "STORE" });
-}
-
 /* ---------- batch / output ---------- */
-async function processBatch() {
-  if (!state.selectedFiles.length) { alert("Please select documents first."); return; }
-  if (!state.libraryReady) { alert(state.libraryError || "Document libraries are not ready."); return; }
-
-  const rules = getRules();
-  if (!state.sigBytes && !rules.initialsText) { alert("Add a signature or enter initials before starting."); return; }
-
-  state.signedOutputs.clear();
-  state.zip = new (requireLibrary("JSZip"))();
-  let completed = 0, failed = 0;
-  $("startBtn").disabled = true;
-  $("downloadBtn").disabled = true;
-  setText("countCompleted", "0");
-  setText("countFailed", "0");
-
-  for (let i = 0; i < state.selectedFiles.length; i++) {
-    const file = state.selectedFiles[i];
-    setStatus(`Processing ${i + 1}/${state.selectedFiles.length}: ${file.name}`);
-    try {
-      const bytes = isPdf(file) ? await signPdf(file, rules) : await signDocx(file, rules);
-      state.signedOutputs.set(file.name, bytes);
-      state.zip.file(`SIGNED_${baseName(file.name)}.${isPdf(file) ? "pdf" : "docx"}`, bytes);
-      completed++;
-      setText("countCompleted", completed);
-      logMessage(`[SUCCESS] ${file.name}`);
-    } catch (error) {
-      failed++;
-      setText("countFailed", failed);
-      logMessage(`[FAILED] ${file.name}: ${error.message || error}`);
+async function processBatch(){
+  if(!state.selectedFiles.length){alert("Please select PDF document(s) first.");return;}if(!state.libraryReady){alert(state.libraryError||"PDF libraries are not ready.");return;}
+  const rules=getRules();if(!state.sigBytes&&!rules.initialsText){alert("Add a signature or enter initials before starting.");return;}
+  state.signedOutputs.clear();state.zip=new (requireLibrary("JSZip"))();state.batchZipBlob=null;let completed=0,failed=0;$("startBtn").disabled=true;$("downloadBtn").disabled=true;setText("countCompleted","0");setText("countFailed","0");
+  for(let i=0;i<state.selectedFiles.length;i++){const file=state.selectedFiles[i];setStatus(`Processing ${i+1}/${state.selectedFiles.length}: ${file.name}`);try{const bytes=await signPdf(file,rules);state.signedOutputs.set(file.name,bytes);state.zip.file(file.name,bytes);completed++;setText("countCompleted",completed);logMessage(`[SUCCESS] ${file.name}`);}catch(error){failed++;setText("countFailed",failed);logMessage(`[FAILED] ${file.name}: ${error.message||error}`);}$("progressFill").style.width=`${Math.round(((i+1)/state.selectedFiles.length)*100)}%`;}
+  if(completed>0 && isFolderMode()){try{state.batchZipBlob=await state.zip.generateAsync({type:"blob",compression:"STORE"});}catch(zipError){state.batchZipBlob=null;logMessage("[ZIP PREP ERROR] "+(zipError.message||zipError));}}
+  setStatus(`Processing complete: ${completed} completed, ${failed} failed.`);$("startBtn").disabled=false;$("downloadBtn").disabled=completed===0;updateExportButton();
+  if(completed>0){state.inspectingSigned=true;$("sigDrag").style.display="none";$("initDrag").style.display="none";try{await renderCurrentFile();}catch(previewError){logMessage("[SIGNED PREVIEW ERROR] "+(previewError.message||previewError));setStatus("Signing completed, but the signed PDF preview could not be rendered: "+(previewError.message||previewError));}}
+}
+function updateExportButton(){
+  const folder=isFolderMode();
+  $("downloadBtn").innerText=folder?"DOWNLOAD SIGNED PDF BATCH ZIP":"DOWNLOAD SIGNED PDF";
+}
+function triggerDownload(blob,filename){
+  try{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=filename; a.rel="noopener"; a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{a.remove();URL.revokeObjectURL(url);},1500);
+  }catch(err){
+    logMessage("[DOWNLOAD ERROR] "+(err.message||err));
+    alert("The download could not be started: "+(err.message||err));
+  }
+}
+async function downloadSignedOutput(){
+  try{
+    if(!state.signedOutputs.size){alert("Please run Start Batch Processing first.");return;}
+    const folder=isFolderMode();
+    if(folder){
+      if(!state.zip)throw new Error("The signed PDF batch archive is not available. Please process the PDFs again.");
+      const names=Array.from(state.signedOutputs.keys());
+      if(names.length===0)throw new Error("No signed PDFs are available for the batch.");
+      if(!state.batchZipBlob){state.batchZipBlob=await state.zip.generateAsync({type:"blob",compression:"STORE"});}
+      triggerDownload(state.batchZipBlob,"NEBULA_SIGNED_PDF_BATCH.zip");
+      setStatus(`Batch download started: ${names.length} signed PDF(s).`);
+    }else{
+      const file=state.selectedFiles[0];
+      if(!file)throw new Error("No source PDF is selected.");
+      const bytes=state.signedOutputs.get(file.name);
+      if(!bytes)throw new Error("No signed PDF exists for the selected document.");
+      triggerDownload(new Blob([bytes],{type:"application/pdf"}),file.name);
+      setStatus(`Download started: ${file.name}`);
     }
-    $("progressFill").style.width = `${Math.round(((i + 1) / state.selectedFiles.length) * 100)}%`;
-  }
-
-  setStatus(`Batch complete: ${completed} completed, ${failed} failed.`);
-  $("startBtn").disabled = false;
-  $("downloadBtn").disabled = completed === 0;
-  $("inspectBtn").disabled = completed === 0;
-  $("unsignedBtn").disabled = false;
-  updateExportButton();
-
-  /* Immediately show the actual generated file when signing succeeds. */
-  if (completed > 0) {
-    state.inspectingSigned = true;
-    $("inspectBtn").innerText = "EXIT SIGNED DOCUMENT";
-    $("inspectBtn").style.background = "var(--nebula-orange)";
-    $("sigDrag").style.display = "none";
-    $("initDrag").style.display = "none";
-    try { await renderCurrentFile(); }
-    catch (previewError) { logMessage("[SIGNED PREVIEW ERROR] " + (previewError.message || previewError)); setStatus("Signing completed, but the signed preview could not be rendered: " + (previewError.message || previewError)); }
+  }catch(err){
+    logMessage("[DOWNLOAD ERROR] "+(err.message||err));
+    alert(err.message||String(err));
   }
 }
 
-function updateExportButton() {
-  $("downloadBtn").innerText = isFolderMode() ? "DOWNLOAD SIGNED FOLDER ZIP" : "DOWNLOAD SIGNED FILE";
-}
+function clearBatchOutputOnly(){state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;state.inspectingSigned=false;showBox("sigDrag");showBox("initDrag");setStatus("Signed output cleared. Source PDF documents remain loaded.");logMessage("Signed PDF output cleared.");if(state.selectedFiles.length)renderCurrentFile().catch(err=>logMessage("[CLEAR PREVIEW ERROR] "+err.message));}
+function clearDownloadedOutput(){
+  /* This is a full scanning-side reset: generated output, pages, current PDF, counters and placement are cleared. */
+  state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;state.batchZipBlob=null;state.importMode=$("docSelectMode")?.value||"pdf-single";state.selectedFiles=[];state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.loadedPdf=null;state.pdfPage=null;state.inspectingSigned=false;state.placement.sig.page=1;state.placement.init.page=1;state.drag=null;
+  $("fileInputContainer").innerHTML="";$("countDetected").innerText="0";$("countCompleted").innerText="0";$("countFailed").innerText="0";$("progressFill").style.width="0%";$("downloadBtn").disabled=true;$("startBtn").disabled=false;hideBox("sigDrag");hideBox("initDrag");clearPreview();toggleDocInputMode();setStatus("Ready for a new PDF. Scanning page cleared.");logMessage("Generated output and scanning page cleared. Ready for a new PDF.");}
+function clearAllSourceDocuments(){clearDownloadedOutput();$("sigImageInput").value="";setStatus("All source PDFs and generated output cleared.");logMessage("All source PDFs cleared.");}
 
-function triggerDownload(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
-
-async function downloadSignedOutput() {
-  if (!state.signedOutputs.size) { alert("Please run Start Batch Processing first."); return; }
-  if (isFolderMode()) {
-    const blob = await state.zip.generateAsync({ type: "blob" });
-    triggerDownload(blob, "NEBULA_SIGNED_BATCH.zip");
-  } else {
-    const file = state.selectedFiles[0];
-    const bytes = state.signedOutputs.get(file.name);
-    if (!bytes) { alert("No signed output exists for the selected document."); return; }
-    const type = isPdf(file) ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    triggerDownload(new Blob([bytes], { type }), `SIGNED_${baseName(file.name)}.${isPdf(file) ? "pdf" : "docx"}`);
-  }
-}
-
-function clearBatchOutputOnly() {
-  state.signedOutputs.clear();
-  state.zip = window.JSZip ? new window.JSZip() : null;
-  setText("countCompleted", "0");
-  setText("countFailed", "0");
-  $("progressFill").style.width = "0%";
-  $("downloadBtn").disabled = true;
-  $("inspectBtn").disabled = true;
-  state.inspectingSigned = false;
-  $("inspectBtn").innerText = "VIEW SIGNED DOCUMENT";
-  $("inspectBtn").style.background = "var(--nebula-yellow)";
-  $("unsignedBtn").disabled = !state.selectedFiles.length;
-  hideSignedOverlays();
-  if (state.sigBytes) showBox("sigDrag");
-  if ($("initialsText").value.trim()) showBox("initDrag");
-  setStatus("Signed output cleared. Source documents remain loaded.");
-  logMessage("Signed batch output cleared.");
-  if (state.selectedFiles.length) renderCurrentFile().catch(err => logMessage("[CLEAR PREVIEW ERROR] " + err.message));
-}
-
-function clearDownloadedOutput() {
-  clearBatchOutputOnly();
-  setStatus("Generated/downloaded output cleared. Uploaded source files remain loaded.");
-}
-
-function clearAllSourceDocuments() {
-  state.selectedFiles = [];
-  state.currentFileIndex = 0;
-  state.currentPage = 1;
-  state.totalPages = 1;
-  state.loadedPdf = null;
-  state.pdfPage = null;
-  state.wordSections = [];
-  state.signedOutputs.clear();
-  state.placement.sig.page = 1;
-  state.placement.init.page = 1;
-  state.inspectingSigned = false;
-  hideSignedOverlays();
-  $("fileInputContainer").innerHTML = "";
-  $("countDetected").innerText = "0";
-  $("countCompleted").innerText = "0";
-  $("countFailed").innerText = "0";
-  $("progressFill").style.width = "0%";
-  $("downloadBtn").disabled = true;
-  $("inspectBtn").disabled = true;
-  $("unsignedBtn").disabled = true;
-  $("startBtn").disabled = false;
-  clearPreview();
-  toggleDocInputMode();
-  setStatus("All source documents and generated output cleared.");
-  logMessage("All source documents cleared.");
-}
-
-/* ---------- AI scanner without docx dependency ---------- */
-async function extractPdfText(file) {
-  requireLibrary("pdfjsLib");
-  const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-  const pages = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    pages.push({ page: i, text: content.items.map(x => x.str).join(" ") });
-  }
-  return pages;
-}
-
-async function extractDocxText(file) {
-  const JSZip = requireLibrary("JSZip");
-  const z = await JSZip.loadAsync(await file.arrayBuffer());
-  const xmlFile = z.file("word/document.xml");
-  if (!xmlFile) return [{ page: 1, text: "" }];
-  const xml = await xmlFile.async("string");
-  const plain = xml
-    .replace(/<w:tab\/?\s*>/g, "\t")
-    .replace(/<w:br[^>]*\/>/g, "\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return [{ page: 1, text: plain }];
-}
-
-async function scanDocuments() {
-  const category = $("aiCategorySelect").value;
-  const patterns = {
-    amount: /(?:R|\$|€|USD|ZAR)\s?\d+(?:,\d{3})*(?:\.\d{2})?/gi,
-    date: /(?:due|expire|deadline|dated?|by)\s*:?\s?\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}/gi,
-    legal: /(?:penalty|liable|liability|forfeit|breach|indemnify|non-refundable|interest)/gi
-  };
-  const alerts = [];
-  for (const file of state.selectedFiles) {
-    const pages = isPdf(file) ? await extractPdfText(file) : await extractDocxText(file);
-    pages.forEach(p => {
-      if (category === "all" || category === "amount") (p.text.match(patterns.amount) || []).forEach(x => alerts.push(`${file.name} — Page ${p.page}: ${x}`));
-      if (category === "all" || category === "date") (p.text.match(patterns.date) || []).forEach(x => alerts.push(`${file.name} — Page ${p.page}: ${x}`));
-      if (category === "all" || category === "legal") if ((p.text.match(patterns.legal) || []).length) alerts.push(`${file.name} — Page ${p.page}: legal-risk terms detected`);
-    });
-  }
-  $("aiResultsBox").innerHTML = alerts.length ? alerts.map(x => `<div class="risk-card">${escapeHtml(x)}</div>`).join("") : `<div style="color:var(--nebula-green)">✅ No matching patterns found.</div>`;
-}
-
-async function runAiHighRiskScan() {
-  if (!state.selectedFiles.length) return alert("Please upload documents first.");
-  $("aiResultsBox").innerHTML = "🔍 Scanning documents...";
-  try { await scanDocuments(); } catch (e) { $("aiResultsBox").innerHTML = `<div style="color:var(--nebula-orange)">Scan failed: ${escapeHtml(e.message)}</div>`; }
-}
-
-async function executeAiCustomQuery() {
-  const prompt = $("aiCustomPrompt").value.trim().toLowerCase();
-  if (!prompt) return alert("Please enter a search query.");
-  if (!state.selectedFiles.length) return alert("Please upload documents first.");
-  const results = [];
-  for (const file of state.selectedFiles) {
-    const pages = isPdf(file) ? await extractPdfText(file) : await extractDocxText(file);
-    pages.forEach(p => {
-      const idx = p.text.toLowerCase().indexOf(prompt);
-      if (idx >= 0) results.push(`${file.name} — Page ${p.page}: ${p.text.slice(Math.max(0, idx - 50), idx + prompt.length + 100)}`);
-    });
-  }
-  $("aiResultsBox").innerHTML = results.length ? results.map(x => `<div class="risk-card highlight">${escapeHtml(x)}</div>`).join("") : `No text matching "${escapeHtml(prompt)}" was found.`;
-}
+/* ---------- AI scanner: PDF only ---------- */
+async function extractPdfText(file){requireLibrary("pdfjsLib");const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i),content=await page.getTextContent();pages.push({page:i,text:content.items.map(x=>x.str).join(" ")});}return pages;}
+async function scanDocuments(){const category=$("aiCategorySelect").value,patterns={amount:/(?:R|\$|€|USD|ZAR)\s?\d+(?:,\d{3})*(?:\.\d{2})?/gi,date:/(?:due|expire|deadline|dated?|by)\s*:?\s?\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}/gi,legal:/(?:penalty|liable|liability|forfeit|breach|indemnify|non-refundable|interest)/gi},alerts=[];for(const file of state.selectedFiles){const pages=await extractPdfText(file);pages.forEach(p=>{if(category==="all"||category==="amount")(p.text.match(patterns.amount)||[]).forEach(x=>alerts.push(`${file.name} — Page ${p.page}: ${x}`));if(category==="all"||category==="date")(p.text.match(patterns.date)||[]).forEach(x=>alerts.push(`${file.name} — Page ${p.page}: ${x}`));if(category==="all"||category==="legal")if((p.text.match(patterns.legal)||[]).length)alerts.push(`${file.name} — Page ${p.page}: legal-risk terms detected`);});}$("aiResultsBox").innerHTML=alerts.length?alerts.map(x=>`<div class="risk-card">${escapeHtml(x)}</div>`).join(""):`<div style="color:var(--nebula-green)">✅ No matching patterns found.</div>`;}
+async function runAiHighRiskScan(){if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");$("aiResultsBox").innerHTML="🔍 Scanning PDFs...";try{await scanDocuments();}catch(e){$("aiResultsBox").innerHTML=`<div style="color:var(--nebula-orange)">Scan failed: ${escapeHtml(e.message)}</div>`;}}
+async function executeAiCustomQuery(){const prompt=$("aiCustomPrompt").value.trim().toLowerCase();if(!prompt)return alert("Please enter a search query.");if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");const results=[];for(const file of state.selectedFiles){const pages=await extractPdfText(file);pages.forEach(p=>{const idx=p.text.toLowerCase().indexOf(prompt);if(idx>=0)results.push(`${file.name} — Page ${p.page}: ${p.text.slice(Math.max(0,idx-50),idx+prompt.length+100)}`);});}$("aiResultsBox").innerHTML=results.length?results.map(x=>`<div class="risk-card highlight">${escapeHtml(x)}</div>`).join(""):`No text matching "${escapeHtml(prompt)}" was found.`;}
 
 /* ---------- signature file ---------- */
-async function loadSignatureFile(file) {
-  try {
-    if (!file || !/^image\/(png|jpeg|jpg)$/.test(file.type)) throw new Error("Please select a PNG or JPG signature image.");
-    const dataUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("Could not read the signature image."));
-      reader.readAsDataURL(file);
-    });
-    const img = await new Promise((resolve, reject) => {
-      const image = new Image();
-      image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("The selected signature image could not be decoded."));
-      image.src = dataUrl;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, img.naturalWidth);
-    canvas.height = Math.max(1, img.naturalHeight);
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < data.data.length; i += 4) {
-      if (data.data[i] > 210 && data.data[i + 1] > 210 && data.data[i + 2] > 210) data.data[i + 3] = 0;
-    }
-    ctx.putImageData(data, 0, 0);
-    const blob = await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error("Could not create transparent signature PNG.")), "image/png"));
-    state.sigBytes = await blob.arrayBuffer();
-    state.placement.sig.page = state.currentPage;
-    showBox("sigDrag");
-    await repositionBoxes();
-    logMessage(`Signature image loaded: ${file.name}`);
-  } catch (error) {
-    state.sigBytes = null;
-    hideBox("sigDrag");
-    logMessage("[SIGNATURE LOAD ERROR] " + (error.message || error));
-    alert(error.message || error);
-  }
-}
+async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.test(file.type))throw new Error("Please select a PNG or JPG signature image.");const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the signature image."));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error("The selected signature image could not be decoded."));image.src=dataUrl;});const canvas=document.createElement("canvas");canvas.width=Math.max(1,img.naturalWidth);canvas.height=Math.max(1,img.naturalHeight);const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<data.data.length;i+=4)if(data.data[i]>210&&data.data[i+1]>210&&data.data[i+2]>210)data.data[i+3]=0;ctx.putImageData(data,0,0);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create transparent signature PNG.")),"image/png"));state.sigBytes=await blob.arrayBuffer();state.placement.sig.page=state.currentPage;showBox("sigDrag");await repositionBoxes();logMessage(`Signature image loaded: ${file.name}`);}catch(error){state.sigBytes=null;hideBox("sigDrag");logMessage("[SIGNATURE LOAD ERROR] "+(error.message||error));alert(error.message||error);}}
 
-/* ---------- reset / startup ---------- */
-function wireEvents() {
-  $("sigImageInput").addEventListener("change", e => {
-    const file = e.target.files?.[0];
-    if (file) loadSignatureFile(file);
-  });
-  window.addEventListener("resize", async () => {
-    if (!state.selectedFiles.length) return;
-    try {
-      if (state.currentSourceType === "pdf") await renderPdfPage(state.currentPage);
-      else await applyWordPage();
-    } catch (e) { logMessage("[RESIZE ERROR] " + e.message); }
-  });
-}
+/* ---------- startup ---------- */
+function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});}
+window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
 
-window.zoomCanvas = zoomCanvas;
-window.clearDrawCanvas = clearDrawCanvas;
-window.saveDrawnSignature = saveDrawnSignature;
-window.clearSignatureOnly = clearSignatureOnly;
-window.clearInitialsOnly = clearInitialsOnly;
-window.recenterSignature = recenterSignature;
-window.recenterInitials = recenterInitials;
-window.resizeSignatureBox = resizeSignatureBox;
-window.resizeInitialsBox = resizeInitialsBox;
-window.updateInitialsLabel = updateInitialsLabel;
-window.toggleDocInputMode = toggleDocInputMode;
-window.toggleSigMode = toggleSigMode;
-window.toggleRuleInputs = toggleRuleInputs;
-window.toggleAiPanelSize = toggleAiPanelSize;
-window.clearAiScanResults = clearAiScanResults;
-window.prevPage = prevPage;
-window.nextPage = nextPage;
-window.prevDocument = prevDocument;
-window.nextDocument = nextDocument;
-window.toggleSignedInspection = toggleSignedInspection;
-window.viewUnsignedDocument = viewUnsignedDocument;
-window.processBatch = processBatch;
-window.downloadSignedOutput = downloadSignedOutput;
-window.clearBatchOutputOnly = clearBatchOutputOnly;
-window.clearDownloadedOutput = clearDownloadedOutput;
-window.clearAllSourceDocuments = clearAllSourceDocuments;
-window.runAiHighRiskScan = runAiHighRiskScan;
-window.executeAiCustomQuery = executeAiCustomQuery;
-
-(async function init() {
-  try {
-    wireEvents();
-    toggleSigMode();
-    toggleRuleInputs("sig");
-    toggleRuleInputs("init");
-    toggleDocInputMode();
-    logMessage("--- Nebula Batch Signer starting ---");
-    try {
-      await loadBrowserLibraries();
-    } catch (libraryLoadError) {
-      logMessage("[LIBRARY LOAD] " + (libraryLoadError.message || libraryLoadError));
-    }
-    const ok = await waitForLibraries();
-    if (ok) {
-      state.zip = new window.JSZip();
-      logMessage("Document libraries loaded successfully.");
-      setStatus("Ready. Select a PDF or DOCX document.");
-    } else {
-      setStatus(state.libraryError);
-    }
-  } catch (e) {
-    state.libraryError = e.message || String(e);
-    logMessage("[STARTUP ERROR] " + state.libraryError);
-    setStatus(state.libraryError);
-  }
-})();
-
+(async function init(){try{wireEvents();toggleSigMode();toggleRuleInputs("sig");toggleRuleInputs("init");toggleDocInputMode();logMessage("--- Nebula PDF Batch Signer starting ---");try{await loadBrowserLibraries();}catch(e){logMessage("[LIBRARY LOAD] "+(e.message||e));}const ok=await waitForLibraries();if(ok){state.zip=new window.JSZip();logMessage("PDF libraries loaded successfully.");setStatus("Ready. PDF only — select Single PDF or PDF Batch.");}else setStatus(state.libraryError);}catch(e){state.libraryError=e.message||String(e);logMessage("[STARTUP ERROR] "+state.libraryError);setStatus(state.libraryError);}})();
 </script>
 </body>
 </html>
