@@ -37,6 +37,31 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
 .progress-bar-bg{background:var(--border);height:12px;border-radius:6px;overflow:hidden;margin-top:10px}
 .progress-bar-fill{background:var(--nebula-yellow);height:100%;width:0%;transition:width .2s}
 #log{background:var(--nebula-bg);color:var(--nebula-green);font-family:monospace;padding:10px;height:140px;overflow-y:auto;border-radius:4px;font-size:.75rem;border:1px solid var(--border)}
+.failed-documents-panel{margin-top:12px;background:#120d10;border:2px solid var(--nebula-orange);border-radius:6px;padding:12px}
+.failed-documents-header{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid rgba(201,107,83,.45);padding-bottom:7px;margin-bottom:8px}
+.failed-documents-header h4{margin:0;color:#ff6b55;font-size:.95rem}
+.failed-documents-summary{font-size:.76rem;color:var(--text-dim);margin-bottom:8px}
+.failed-documents-list{max-height:260px;overflow-y:auto}
+.failed-document-item{padding:9px 10px;margin-bottom:7px;border:1px solid rgba(201,107,83,.55);border-radius:4px;background:rgba(201,107,83,.08)}
+.failed-document-item:last-child{margin-bottom:0}
+.failed-document-name{color:#ff6b55;font-weight:700;font-size:.82rem;word-break:break-word}
+.failed-document-reason{color:#fff;font-size:.76rem;line-height:1.4;margin-top:4px}
+.failed-document-code{color:var(--nebula-yellow);font-size:.68rem;margin-top:4px}
+.ai-filter-note{font-size:.7rem;color:var(--text-dim);margin-top:5px;line-height:1.35}
+.ai-result-item{padding:9px 10px;margin-bottom:7px;border:1px solid var(--border);border-left:4px solid var(--nebula-orange);border-radius:3px;background:rgba(201,107,83,.08)}
+.ai-result-item.amount{border-left-color:var(--nebula-yellow)}
+.ai-result-item.date{border-left-color:var(--nebula-orange)}
+.ai-result-item.legal{border-left-color:var(--nebula-yellow)}
+.ai-result-item.keyword{border-left-color:var(--nebula-green)}
+.ai-result-item.vendor{border-left-color:var(--nebula-purple)}
+.ai-result-item.terms{border-left-color:var(--nebula-green)}
+.ai-result-title{font-weight:700;color:#fff;font-size:.8rem}
+.ai-result-description{color:#e8edf4;margin-top:4px;line-height:1.4}
+.ai-result-meta{color:var(--text-dim);margin-top:5px}
+.ai-result-amount{float:right;color:var(--nebula-yellow);font-weight:700;font-size:.82rem}
+.ai-risk-badge{display:inline-block;padding:2px 6px;border-radius:3px;background:rgba(201,107,83,.35);color:#fff;margin-left:6px;font-size:.66rem}
+.ai-risk-badge.low{background:rgba(0,150,108,.35)}
+.ai-risk-badge.medium{background:rgba(226,192,40,.35)}
 
 /* A4 preview viewport */
 .preview-wrapper{
@@ -57,6 +82,9 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
 #sigDrag{border-color:var(--nebula-yellow);background:rgba(226,192,40,.35);color:#000;width:120px;height:40px;top:550px;left:60px}
 #initDrag{border-color:var(--nebula-purple);background:rgba(139,107,167,.35);color:#000;width:60px;height:25px;top:560px;left:350px;display:flex}
 .drag-element::after{content:"⬆";position:absolute;right:-30px;top:50%;transform:translateY(-50%);font-family:Arial,sans-serif;font-size:34px;font-weight:900;line-height:1;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;z-index:100}
+.overlay-label{pointer-events:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.overlay-delete{position:absolute;right:-11px;top:-11px;width:22px;height:22px;border:2px solid #fff;border-radius:50%;background:var(--nebula-orange);color:#fff;font-weight:900;font-size:16px;line-height:16px;padding:0;cursor:pointer;z-index:120;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px #000}
+.overlay-delete:hover{filter:brightness(1.15)}
 .flex-row{display:flex;gap:8px}.flex-row>div{flex:1}
 .nav-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;background:var(--nebula-bg);padding:8px;border-radius:4px;border:1px solid var(--border);flex-wrap:wrap}
 .source-status{margin-top:7px;padding:7px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.75rem}
@@ -158,7 +186,7 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
     <div><label for="sigStartPage">Start Page</label><input type="number" id="sigStartPage" value="1" min="1"></div>
     <div><label for="sigEndMode">Rule</label>
       <select id="sigEndMode" onchange="toggleRuleInputs('sig')">
-        <option value="last">Last Page Only</option><option value="all">All Pages</option><option value="specific">Specific Page Number</option>
+        <option value="all" selected>All Pages</option><option value="last">Last Page Only</option><option value="specific">Specific Page Number</option>
       </select>
     </div>
   </div>
@@ -169,13 +197,14 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
     <div><label for="initStartPage">Start Page</label><input type="number" id="initStartPage" value="1" min="1"></div>
     <div><label for="initEndMode">Rule</label>
       <select id="initEndMode" onchange="toggleRuleInputs('init')">
-        <option value="all">All Pages</option><option value="last">Last Page Only</option><option value="specific">Specific Page Number</option>
+        <option value="all" selected>All Pages</option><option value="last">Last Page Only</option><option value="specific">Specific Page Number</option>
       </select>
     </div>
   </div>
   <div id="initSpecificBox" style="display:none"><label for="initSpecificPage">Target Page Number</label><input type="number" id="initSpecificPage" value="1" min="1"></div>
   
 
+  <button type="button" id="placeSignaturesBtn" class="btn-main" style="background:var(--nebula-yellow);color:#000" onclick="placeSignatures()">PLACE SIGNATURES</button>
   <button type="button" id="startBtn" class="btn-main" onclick="processBatch()">START BATCH PROCESSING</button>
   <button type="button" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearBatchOutputOnly()">CLEAR BATCH OUTPUT</button>
 </div>
@@ -186,8 +215,8 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   <div class="preview-wrapper" id="previewWrapper">
     <canvas id="pdfCanvas"></canvas>
     <div id="docPagesContainer"></div>
-        <div id="sigDrag" class="drag-element">Signature</div>
-    <div id="initDrag" class="drag-element"></div>
+        <div id="sigDrag" class="drag-element"><span class="overlay-label">Signature</span><button type="button" class="overlay-delete" title="Delete signature from this page" onclick="deletePlacement(event,'sig')">×</button></div>
+    <div id="initDrag" class="drag-element"><span class="overlay-label"></span><button type="button" class="overlay-delete" title="Delete initials from this page" onclick="deletePlacement(event,'init')">×</button></div>
   </div>
 
   <div class="nav-controls">
@@ -214,20 +243,29 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
     <div class="flex-row">
       <div>
         <label for="aiCategorySelect" style="margin-top:0">Search Category</label>
-        <select id="aiCategorySelect">
+        <select id="aiCategorySelect" onchange="updateAiFilterNote()">
           <option value="all">High Risk &amp; Amounts (Auto Scan)</option>
           <option value="amount">Financial Amounts &amp; Currency (R/$)</option>
           <option value="date">Due Dates &amp; Expiration Clauses</option>
           <option value="legal">Legal Liabilities &amp; Penalties</option>
+          <option value="keywords">Keywords &amp; Phrases</option>
+          <option value="vendor">Vendor &amp; Supplier Names</option>
+          <option value="terms">Contract Terms &amp; Obligations</option>
         </select>
+        <div id="aiFilterNote" class="ai-filter-note">Auto scan checks amounts, dates and legal-risk terms.</div>
       </div>
       <div>
-        <label for="aiCustomPrompt" style="margin-top:0">Custom Prompt Query</label>
+        <label for="aiAmountThreshold" style="margin-top:0">Amount Threshold (R)</label>
+        <input type="number" id="aiAmountThreshold" value="10000" min="0" step="0.01" oninput="updateAiFilterNote()">
+        <div class="ai-filter-note">Only financial findings at or above this amount are shown. The threshold does not filter dates, legal terms or keywords.</div>
+      </div>
+      <div>
+        <label for="aiCustomPrompt" style="margin-top:0">Custom Prompt Query (Optional)</label>
         <input type="text" id="aiCustomPrompt" placeholder="Ask AI e.g. Find invoice total or student no...">
       </div>
     </div>
     <div class="btn-group-sm" style="margin-top:8px">
-      <button type="button" class="btn-sm" style="background:var(--nebula-orange);font-weight:bold" onclick="runAiHighRiskScan()">SEARCH HIGH ALERT RISKS</button>
+      <button type="button" class="btn-sm" style="background:var(--nebula-orange);font-weight:bold" onclick="runAiHighRiskScan()">SEARCH SELECTED CATEGORY</button>
       <button type="button" class="btn-sm" style="background:var(--nebula-purple);font-weight:bold" onclick="executeAiCustomQuery()">RUN AI PROMPT QUERY</button>
     </div>
     <div id="aiResultsBox" class="ai-results-container">Awaiting AI scan...</div>
@@ -247,6 +285,13 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
   <button type="button" id="downloadBtn" class="btn-main" style="background:var(--nebula-yellow);color:#000" onclick="downloadSignedOutput()" disabled>DOWNLOAD SIGNED FILE</button>
   <button type="button" id="clearDownloadBtn" class="btn-main" style="background:var(--nebula-orange);margin-top:8px" onclick="clearDownloadedOutput()">CLEAR DOWNLOADED / GENERATED OUTPUT</button>
   <div id="exportNote" class="export-note"><strong>Export rule:</strong> Single PDF = one signed PDF. PDF folder/batch = one ZIP containing all signed PDFs.</div>
+   <div id="failedDocumentsPanel" class="failed-documents-panel hidden">
+     <div class="failed-documents-header">
+       <h4>⚠ FAILED DOCUMENTS (<span id="failedDocumentsCount">0</span>)</h4>
+     </div>
+     <div class="failed-documents-summary">The following documents failed to process. Other documents in the batch continue processing.</div>
+     <div id="failedDocumentsList" class="failed-documents-list"></div>
+   </div>
 </div>
 </div>
 </div>
@@ -267,9 +312,12 @@ const state = {
   pdfPage: null,
   inspectingSigned: false,
   signedOutputs: new Map(),
+  failedDocuments: [],
   zip: null,
   batchZipBlob: null,
   sigBytes: null,
+  placementApplied: false,
+  pagePlacements: new Map(),
   placement: {
     sig: { x: 60 / A4_W, y: 550 / A4_H, w: 120 / A4_W, h: 40 / A4_H, page: 1 },
     init: { x: 350 / A4_W, y: 560 / A4_H, w: 60 / A4_W, h: 25 / A4_H, page: 1 }
@@ -289,6 +337,33 @@ function isFolderMode(){return state.importMode === "pdf-folder";}
 function baseName(name){return name.replace(/\.[^.]+$/,'');}
 function setStatus(text){if($("statusText"))$("statusText").innerText=text;}
 function setText(id,text){if($(id))$(id).innerText=text;}
+
+function classifyProcessingError(error){
+  const raw=String(error?.message||error||"Unknown processing error").trim();
+  const lower=raw.toLowerCase();
+  if(/password|encrypted|encryption|needs password|invalid password|decrypt/.test(lower))
+    return {code:"PASSWORD_PROTECTED",reason:"The PDF is password protected or encrypted and could not be opened. Remove the password/encryption and try again."};
+  if(/invalid pdf|invalid document|malformed|parse|parsing|corrupt|damaged|incomplete|unexpected end|truncated|eof|cannot read|could not be read|failed to parse/.test(lower))
+    return {code:"CORRUPT_OR_UNREADABLE",reason:"The PDF structure could not be read. The file may be corrupted, damaged, incomplete, or malformed."};
+  if(/unsupported|not a pdf|format/.test(lower))
+    return {code:"UNSUPPORTED_FORMAT",reason:"The selected file is not a supported PDF document. Only PDF files can be processed."};
+  return {code:"PROCESSING_ERROR",reason:`The document could not be processed. ${raw}`};
+}
+
+function renderFailedDocuments(){
+  const panel=$("failedDocumentsPanel"),list=$("failedDocumentsList"),count=$("failedDocumentsCount");
+  if(!panel||!list||!count)return;
+  const failures=state.failedDocuments||[];
+  count.innerText=String(failures.length);
+  if(!failures.length){list.innerHTML="";panel.classList.add("hidden");return;}
+  panel.classList.remove("hidden");
+  list.innerHTML=failures.map((item,index)=>`
+    <div class="failed-document-item">
+      <div class="failed-document-name">${index+1}. ${escapeHtml(item.name)}</div>
+      <div class="failed-document-reason"><strong>Error:</strong> ${escapeHtml(item.reason)}</div>
+      <div class="failed-document-code">${escapeHtml(item.code)}</div>
+    </div>`).join("");
+}
 
 function deps(){return {JSZip:window.JSZip,PDFLib:window.PDFLib,pdfjsLib:window.pdfjsLib};}
 function requireLibrary(name){const d=deps();if(!d[name])throw new Error(`${name} library is not available.`);return d[name];}
@@ -324,7 +399,7 @@ const drawCtx=drawCanvas?.getContext("2d");
 let drawActive=false,canvasZoom=1;
 function clearDrawCanvas(){if(drawCtx&&drawCanvas)drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);canvasZoom=1;if(drawCanvas)drawCanvas.style.transform="scale(1)";state.sigBytes=null;showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Manual pen signature cleared. Signature and initials blocks remain on the PDF page.");}
 function zoomCanvas(factor){canvasZoom=Math.max(.5,Math.min(3,canvasZoom*factor));if(drawCanvas)drawCanvas.style.transform=`scale(${canvasZoom})`;}
-async function saveDrawnSignature(){if(!drawCanvas)return;const blob=await new Promise(resolve=>drawCanvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create signature image.");state.sigBytes=await blob.arrayBuffer();state.placement.sig.page=state.currentPage;showBox("sigDrag");$("drawBox").style.display="none";await repositionBoxes();logMessage("Manual pen signature saved.");}
+async function saveDrawnSignature(){if(!drawCanvas)return;const blob=await new Promise(resolve=>drawCanvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create signature image.");state.sigBytes=await blob.arrayBuffer();showBox("sigDrag");$("drawBox").style.display="none";await repositionBoxes();logMessage("Manual pen signature saved.");}
 function clearSignatureOnly(){
   clearDrawCanvas();
   if($("sigImageInput"))$("sigImageInput").value="";
@@ -337,12 +412,33 @@ function clearSignatureOnly(){
   logMessage("Signature cleared. Manual Pen Signature panel opened for a new signature.");
   setStatus("Signature cleared. Draw a new signature using Manual Pen Signature.");
 }
-function clearInitialsOnly(){$("initialsText").value="";$("initDrag").innerText="";showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Initials cleared. Empty initials block remains on the PDF page.");}
-function recenterSignature(){state.placement.sig={x:.5-state.placement.sig.w/2,y:.78-state.placement.sig.h/2,w:state.placement.sig.w,h:state.placement.sig.h,page:state.currentPage};showBox("sigDrag");repositionBoxes();}
-function recenterInitials(){state.placement.init={x:.5-state.placement.init.w/2,y:.72-state.placement.init.h/2,w:state.placement.init.w,h:state.placement.init.h,page:state.currentPage};showBox("initDrag");repositionBoxes();}
-function resizeSignatureBox(){const width=Math.max(10,Number($("sigW").value)||120),height=Math.max(10,Number($("sigH").value)||40),page=activePageRect();if(page){state.placement.sig.w=Math.min(1,width/page.width);state.placement.sig.h=Math.min(1,height/page.height);}repositionBoxes();}
-function resizeInitialsBox(){const fontSize=Math.max(8,Number($("initFontSize").value)||14);$("initDrag").style.fontSize=fontSize+"px";repositionBoxes();}
-function updateInitialsLabel(){state.placement.init.page=state.currentPage;const value=$("initialsText").value.trim();$("initDrag").innerText=value;showBox("sigDrag");showBox("initDrag");repositionBoxes();}
+function clearInitialsOnly(){$("initialsText").value="";const label=$("initDrag").querySelector(".overlay-label");if(label)label.innerText="";showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Initials cleared. Empty initials block remains on the PDF page.");}
+function recenterSignature(){const p=currentPlacementFor("sig")||state.placement.sig;state.placement.sig={x:.5-p.w/2,y:.78-p.h/2,w:p.w,h:p.h,page:state.currentPage};if(state.placementApplied)setPagePlacement("sig",state.placement.sig);showBox("sigDrag");repositionBoxes();}
+function recenterInitials(){const p=currentPlacementFor("init")||state.placement.init;state.placement.init={x:.5-p.w/2,y:.72-p.h/2,w:p.w,h:p.h,page:state.currentPage};if(state.placementApplied)setPagePlacement("init",state.placement.init);showBox("initDrag");repositionBoxes();}
+function resizeSignatureBox(){const width=Math.max(10,Number($("sigW").value)||120),height=Math.max(10,Number($("sigH").value)||40),page=activePageRect(),p=currentPlacementFor("sig")||state.placement.sig;if(page){state.placement.sig={...p,w:Math.min(1,width/page.width),h:Math.min(1,height/page.height),page:state.currentPage};if(state.placementApplied)setPagePlacement("sig",state.placement.sig);}repositionBoxes();}
+function resizeInitialsBox(){
+  const fontSize=Math.max(8,Number($("initFontSize").value)||14);
+  $("initDrag").style.fontSize=fontSize+"px";
+  const text=$("initialsText")?.value.trim()||"";
+  const page=activePageRect();
+  if(page&&text){
+    const measureCanvas=document.createElement("canvas"),ctx=measureCanvas.getContext("2d");
+    ctx.font=`700 ${fontSize}px Arial`;
+    const widthPx=Math.max(10,Math.ceil(ctx.measureText(text).width+20));
+    const heightPx=Math.max(10,Math.ceil(fontSize*1.7));
+    const p=currentPlacementFor("init")||state.placement.init;
+    state.placement.init={...p,w:Math.min(1,widthPx/page.width),h:Math.min(1,heightPx/page.height),page:state.currentPage};
+    if(state.placementApplied)setPagePlacement("init",state.placement.init);
+  }
+  repositionBoxes();
+}
+function updateInitialsLabel(){
+  const value=$("initialsText").value.trim();
+  const label=$("initDrag").querySelector(".overlay-label");if(label)label.innerText=value;
+  showBox("sigDrag");
+  showBox("initDrag");
+  resizeInitialsBox();
+}
 if(drawCanvas&&drawCtx){drawCanvas.addEventListener("pointerdown",e=>{drawActive=true;drawCanvas.setPointerCapture?.(e.pointerId);const rect=drawCanvas.getBoundingClientRect();drawCtx.beginPath();drawCtx.moveTo((e.clientX-rect.left)/canvasZoom,(e.clientY-rect.top)/canvasZoom);});drawCanvas.addEventListener("pointermove",e=>{if(!drawActive)return;const rect=drawCanvas.getBoundingClientRect();drawCtx.lineTo((e.clientX-rect.left)/canvasZoom,(e.clientY-rect.top)/canvasZoom);drawCtx.stroke();});["pointerup","pointercancel","pointerleave"].forEach(ev=>drawCanvas.addEventListener(ev,()=>drawActive=false));}
 
 /* ---------- UI ---------- */
@@ -352,6 +448,20 @@ function toggleSigMode(){const mode=$("sigMode").value;$("uploadBox").style.disp
 function toggleRuleInputs(type){const select=$(type==="sig"?"sigEndMode":"initEndMode"),box=$(type==="sig"?"sigSpecificBox":"initSpecificBox");if(select&&box)box.style.display=select.value==="specific"?"block":"none";}
 function toggleAiPanelSize(){const panel=$("aiPanel"),button=$("expandAiBtn");panel.classList.toggle("expanded");button.innerText=panel.classList.contains("expanded")?"Minimize ⤡":"Increase View ⤢";}
 function clearAiScanResults(){$("aiResultsBox").innerHTML="Awaiting AI scan...";$("aiCustomPrompt").value="";}
+function updateAiFilterNote(){
+  const category=$("aiCategorySelect")?.value||"all",threshold=Math.max(0,Number($("aiAmountThreshold")?.value)||0);
+  const formatted=`R${threshold.toLocaleString("en-ZA",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const notes={
+    all:`Auto scan checks amounts >= ${formatted}, due/expiration dates and legal-risk terms.`,
+    amount:`Only financial amounts >= ${formatted} will be shown.`,
+    date:"Searches for due dates, deadlines and expiration dates.",
+    legal:"Searches for liabilities, penalties, breaches, indemnities and related legal-risk terms.",
+    keywords:"Searches for audit keywords and phrases such as invoice, payment, approval, confidential and compliance.",
+    vendor:"Searches for vendor, supplier, contractor and company references.",
+    terms:"Searches for contract obligations, termination, renewal, notice and related terms."
+  };
+  if($("aiFilterNote"))$("aiFilterNote").innerText=notes[category]||"Select a search category.";
+}
 
 /* ---------- PDF upload only ---------- */
 function toggleDocInputMode(){
@@ -366,8 +476,8 @@ async function handleFileSelection(event){
   const files=Array.from(event.target.files||[]).filter(isPdf);
   state.importMode=$("docSelectMode").value;
   state.selectedFiles=state.importMode==="pdf-single"?files.slice(0,1):files;
-  state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.inspectingSigned=false;state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;state.batchZipBlob=null;
-  setText("countDetected",state.selectedFiles.length);setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;
+  state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.inspectingSigned=false;state.placementApplied=false;state.pagePlacements.clear();state.signedOutputs.clear();state.failedDocuments=[];state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;
+  renderFailedDocuments();setText("countDetected",state.selectedFiles.length);setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;
   if(!state.selectedFiles.length){setStatus("No valid PDF selected.");return;}
   setStatus(`Loaded ${state.selectedFiles.length} PDF document(s).`);updateExportButton();await renderCurrentFile();
 }
@@ -394,10 +504,106 @@ async function prevDocument(){if(state.currentFileIndex<=0)return;state.currentF
 async function nextDocument(){if(state.currentFileIndex>=state.selectedFiles.length-1)return;state.currentFileIndex++;state.currentPage=1;await renderCurrentFile();}
 
 /* ---------- normalized placement ---------- */
-function updatePlacementFromVisibleBox(kind){const box=$(kind==="sig"?"sigDrag":"initDrag"),page=activePageRect(),wrapper=$("previewWrapper");if(!box||!page||!wrapper||box.style.display==="none")return;const r=box.getBoundingClientRect(),pageW=Math.max(1,page.width),pageH=Math.max(1,page.height);state.placement[kind]={x:Math.max(0,Math.min(1,(r.left-page.left)/pageW)),y:Math.max(0,Math.min(1,(r.top-page.top)/pageH)),w:Math.max(.001,Math.min(1,r.width/pageW)),h:Math.max(.001,Math.min(1,r.height/pageH)),page:state.currentPage};}
-async function repositionBoxes(){const page=activePageRect(),wrapper=$("previewWrapper");if(!page||!wrapper)return;const wr=wrapper.getBoundingClientRect();for(const [kind,id] of [["sig","sigDrag"],["init","initDrag"]]){const box=$(id);if(!box)continue;const p=state.placement[kind];if(state.inspectingSigned||Number(p.page||1)!==Number(state.currentPage)){box.style.display="none";continue;}box.style.display="flex";box.style.left=(page.left-wr.left+p.x*page.width)+"px";box.style.top=(page.top-wr.top+p.y*page.height)+"px";box.style.width=Math.max(10,p.w*page.width)+"px";box.style.height=Math.max(10,p.h*page.height)+"px";box.innerText=kind==="init"?($("initialsText").value.trim()||""):"Signature";}}
-function makeDraggable(box,kind){box.addEventListener("pointerdown",event=>{if(state.inspectingSigned||box.style.display==="none")return;event.preventDefault();box.setPointerCapture?.(event.pointerId);state.drag={kind,box,lastX:event.clientX,lastY:event.clientY};});box.addEventListener("pointermove",event=>{if(!state.drag||state.drag.box!==box)return;const page=activePageRect(),wrapper=$("previewWrapper");if(!page||!wrapper)return;const dx=event.clientX-state.drag.lastX,dy=event.clientY-state.drag.lastY;state.drag.lastX=event.clientX;state.drag.lastY=event.clientY;const wr=wrapper.getBoundingClientRect(),pageLeft=page.left-wr.left,pageTop=page.top-wr.top;let left=parseFloat(box.style.left)||0,top=parseFloat(box.style.top)||0;left=Math.max(pageLeft,Math.min(pageLeft+page.width-box.offsetWidth,left+dx));top=Math.max(pageTop,Math.min(pageTop+page.height-box.offsetHeight,top+dy));box.style.left=left+"px";box.style.top=top+"px";updatePlacementFromVisibleBox(kind);});["pointerup","pointercancel","lostpointercapture"].forEach(ev=>box.addEventListener(ev,()=>{if(state.drag?.box===box)state.drag=null;}));}
+function placementKey(fileIndex=state.currentFileIndex,page=state.currentPage){return `${fileIndex}:${page}`;}
+function clonePlacement(p){return p?{x:Number(p.x)||0,y:Number(p.y)||0,w:Number(p.w)||.001,h:Number(p.h)||.001,page:Number(p.page)||1}:null;}
+function getPagePlacements(fileIndex=state.currentFileIndex,page=state.currentPage){
+  return state.pagePlacements.get(placementKey(fileIndex,page))||null;
+}
+function setPagePlacement(kind,value,fileIndex=state.currentFileIndex,page=state.currentPage){
+  const key=placementKey(fileIndex,page),entry=state.pagePlacements.get(key)||{};
+  entry[kind]=value?clonePlacement({...value,page}):null;
+  state.pagePlacements.set(key,entry);
+}
+function currentPlacementFor(kind){
+  const pageEntry=getPagePlacements();
+  if(pageEntry&&Object.prototype.hasOwnProperty.call(pageEntry,kind))return pageEntry[kind];
+  return state.placement[kind];
+}
+function updatePlacementFromVisibleBox(kind){
+  const box=$(kind==="sig"?"sigDrag":"initDrag"),page=activePageRect(),wrapper=$("previewWrapper");
+  if(!box||!page||!wrapper||box.style.display==="none")return;
+  const r=box.getBoundingClientRect(),pageW=Math.max(1,page.width),pageH=Math.max(1,page.height);
+  const placement={x:Math.max(0,Math.min(1,(r.left-page.left)/pageW)),y:Math.max(0,Math.min(1,(r.top-page.top)/pageH)),w:Math.max(.001,Math.min(1,r.width/pageW)),h:Math.max(.001,Math.min(1,r.height/pageH)),page:state.currentPage};
+  state.placement[kind]=placement;
+  if(state.placementApplied)setPagePlacement(kind,placement);
+}
+async function repositionBoxes(){
+  const page=activePageRect(),wrapper=$("previewWrapper");
+  if(!page||!wrapper)return;
+  const wr=wrapper.getBoundingClientRect(),rules=getRules();
+  for(const [kind,id] of [["sig","sigDrag"],["init","initDrag"]]){
+    const box=$(id);if(!box)continue;
+    const pageEntry=getPagePlacements();
+    const explicit=pageEntry&&Object.prototype.hasOwnProperty.call(pageEntry,kind);
+    const p=explicit?pageEntry[kind]:state.placement[kind];
+    const rule=rules[kind];
+    const appliesByRule=shouldPlace(state.currentPage,state.totalPages,rule,p);
+    const previewMasterPage=state.currentPage===1;
+    const appliesToCurrentPage=state.placementApplied?(explicit?p!=null:(previewMasterPage&&p!=null)):(state.currentFileIndex===0&&state.currentPage===1&&p!=null);
+    if(state.inspectingSigned||!appliesToCurrentPage||!p){box.style.display="none";continue;}
+    box.style.display="flex";
+    box.style.left=(page.left-wr.left+p.x*page.width)+"px";
+    box.style.top=(page.top-wr.top+p.y*page.height)+"px";
+    box.style.width=Math.max(10,p.w*page.width)+"px";
+    box.style.height=Math.max(10,p.h*page.height)+"px";
+    const label=box.querySelector(".overlay-label");
+    if(label)label.innerText=kind==="init"?$("initialsText").value.trim()||"":"Signature";
+  }
+}
+function deletePlacement(event,kind){
+  event?.preventDefault();event?.stopPropagation();
+  if(state.inspectingSigned||!state.placementApplied)return;
+  setPagePlacement(kind,null);
+  hideBox(kind==="sig"?"sigDrag":"initDrag");
+  logMessage(`${kind==="sig"?"Signature":"Initials"} deleted from File ${state.currentFileIndex+1}, Page ${state.currentPage}. Other pages are unchanged.`);
+}
+function makeDraggable(box,kind){
+  box.addEventListener("pointerdown",event=>{if(event.target.closest?.(".overlay-delete")||state.inspectingSigned||box.style.display==="none")return;event.preventDefault();box.setPointerCapture?.(event.pointerId);state.drag={kind,box,lastX:event.clientX,lastY:event.clientY};});
+  box.addEventListener("pointermove",event=>{if(!state.drag||state.drag.box!==box)return;const page=activePageRect(),wrapper=$("previewWrapper");if(!page||!wrapper)return;const dx=event.clientX-state.drag.lastX,dy=event.clientY-state.drag.lastY;state.drag.lastX=event.clientX;state.drag.lastY=event.clientY;const wr=wrapper.getBoundingClientRect(),pageLeft=page.left-wr.left,pageTop=page.top-wr.top;let left=parseFloat(box.style.left)||0,top=parseFloat(box.style.top)||0;left=Math.max(pageLeft,Math.min(pageLeft+page.width-box.offsetWidth,left+dx));top=Math.max(pageTop,Math.min(pageTop+page.height-box.offsetHeight,top+dy));box.style.left=left+"px";box.style.top=top+"px";updatePlacementFromVisibleBox(kind);});
+  ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>box.addEventListener(ev,()=>{if(state.drag?.box===box)state.drag=null;}));
+}
 makeDraggable($("sigDrag"),"sig");makeDraggable($("initDrag"),"init");
+function masterPlacementFromCurrentPage(){
+  const result={};
+  for(const kind of ["sig","init"]){
+    const p=currentPlacementFor(kind);
+    if(p)result[kind]=clonePlacement(p);
+  }
+  return result;
+}
+function pageMatchesRule(page,total,rule){
+  if(!rule)return false;
+  if(rule.end==="all")return page>=Math.max(1,rule.start);
+  if(rule.end==="last")return page===total;
+  return page===Number(rule.specific||1);
+}
+async function placeSignatures(){
+  if(!state.selectedFiles.length){alert("Please load the PDF document(s) first.");return;}
+  if(!state.sigBytes&&!$("initialsText").value.trim()){alert("Add a signature or enter initials before placing signatures.");return;}
+  if(state.currentFileIndex!==0||state.currentPage!==1){state.currentFileIndex=0;state.currentPage=1;await renderCurrentFile();}
+  const master=masterPlacementFromCurrentPage();
+  if(!master.sig&&!master.init){alert("Place the Signature and/or Initials on Page 1 first.");return;}
+  const rules=getRules();
+  state.pagePlacements.clear();
+  state.placementApplied=true;
+  for(let fileIndex=0;fileIndex<state.selectedFiles.length;fileIndex++){
+    let total=1;
+    if(fileIndex===state.currentFileIndex&&state.loadedPdf)total=state.totalPages;
+    else{const pdf=await window.pdfjsLib.getDocument({data:await state.selectedFiles[fileIndex].arrayBuffer()}).promise;total=pdf.numPages;}
+    for(let page=1;page<=total;page++){
+      const entry={};
+      if(master.sig&&pageMatchesRule(page,total,rules.sig))entry.sig=clonePlacement({...master.sig,page});
+      if(master.init&&pageMatchesRule(page,total,rules.init))entry.init=clonePlacement({...master.init,page});
+      if(Object.keys(entry).length)state.pagePlacements.set(placementKey(fileIndex,page),entry);
+    }
+  }
+  state.placement.sig=master.sig||state.placement.sig;
+  state.placement.init=master.init||state.placement.init;
+  await repositionBoxes();
+  const pagesCount=Array.from(state.pagePlacements.keys()).length;
+  setText("statusText",`Signature placements established across the batch. ${pagesCount} page placement record(s) created. Review and adjust before processing.`);
+  logMessage(`PLACE SIGNATURES: Page 1 is now the master template. Placements copied according to the selected rules. Individual page changes are independent.`);
+}
 
 /* ---------- signing rules ---------- */
 function getRules(){return {sig:{start:Math.max(1,parseInt($("sigStartPage").value,10)||1),end:$("sigEndMode").value,specific:Math.max(1,parseInt($("sigSpecificPage").value,10)||1)},init:{start:Math.max(1,parseInt($("initStartPage").value,10)||1),end:$("initEndMode").value,specific:Math.max(1,parseInt($("initSpecificPage").value,10)||1)},initialsText:$("initialsText").value.trim(),initFont:Math.max(8,Number($("initFontSize").value)||14)};}
@@ -408,25 +614,86 @@ function hideSignedOverlays(){}
 
 /* ---------- PDF signing ---------- */
 async function createInitialsPng(text,fontSize){const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d"),size=Math.max(8,Number(fontSize)||14);ctx.font=`700 ${size}px Arial`;const width=Math.ceil(ctx.measureText(text).width+20),height=Math.ceil(size*1.7);canvas.width=width;canvas.height=height;ctx.font=`700 ${size}px Arial`;ctx.fillStyle="#111";ctx.textBaseline="middle";ctx.fillText(text,10,height/2);const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create initials image.");return await blob.arrayBuffer();}
-async function signPdf(file,rules){
+async function signPdf(file,rules,fileIndex){
   const PDFLib=requireLibrary("PDFLib"),doc=await PDFLib.PDFDocument.load(await file.arrayBuffer()),pages=doc.getPages();
   const sigImage=state.sigBytes?await doc.embedPng(state.sigBytes):null;const initImage=rules.initialsText?await doc.embedPng(await createInitialsPng(rules.initialsText,rules.initFont)):null;
   pages.forEach((page,index)=>{const pageNumber=index+1,{width,height}=page.getSize();
-    if(sigImage&&shouldPlace(pageNumber,pages.length,rules.sig,state.placement.sig)){const p=state.placement.sig,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(sigImage,{x,y,width:w,height:h});}
-    if(initImage&&shouldPlace(pageNumber,pages.length,rules.init,state.placement.init)){const p=state.placement.init,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(initImage,{x,y,width:w,height:h});}
+    const entry=getPagePlacements(fileIndex,pageNumber)||{};
+    const sigPlacement=Object.prototype.hasOwnProperty.call(entry,"sig")?entry.sig:(state.placementApplied?null:state.placement.sig);
+    const initPlacement=Object.prototype.hasOwnProperty.call(entry,"init")?entry.init:(state.placementApplied?null:state.placement.init);
+    if(sigImage&&sigPlacement&&pageMatchesRule(pageNumber,pages.length,rules.sig)){const p=sigPlacement,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(sigImage,{x,y,width:w,height:h});}
+    if(initImage&&initPlacement&&pageMatchesRule(pageNumber,pages.length,rules.init)){const p=initPlacement,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(initImage,{x,y,width:w,height:h});}
   });
   return await doc.save();
 }
 
 /* ---------- batch / output ---------- */
 async function processBatch(){
-  if(!state.selectedFiles.length){alert("Please select PDF document(s) first.");return;}if(!state.libraryReady){alert(state.libraryError||"PDF libraries are not ready.");return;}
-  const rules=getRules();if(!state.sigBytes&&!rules.initialsText){alert("Add a signature or enter initials before starting.");return;}
-  state.signedOutputs.clear();state.zip=new (requireLibrary("JSZip"))();state.batchZipBlob=null;let completed=0,failed=0;$("startBtn").disabled=true;$("downloadBtn").disabled=true;setText("countCompleted","0");setText("countFailed","0");
-  for(let i=0;i<state.selectedFiles.length;i++){const file=state.selectedFiles[i];setStatus(`Processing ${i+1}/${state.selectedFiles.length}: ${file.name}`);try{const bytes=await signPdf(file,rules);state.signedOutputs.set(file.name,bytes);state.zip.file(file.name,bytes);completed++;setText("countCompleted",completed);logMessage(`[SUCCESS] ${file.name}`);}catch(error){failed++;setText("countFailed",failed);logMessage(`[FAILED] ${file.name}: ${error.message||error}`);}$("progressFill").style.width=`${Math.round(((i+1)/state.selectedFiles.length)*100)}%`;}
-  if(completed>0 && isFolderMode()){try{state.batchZipBlob=await state.zip.generateAsync({type:"blob",compression:"STORE"});}catch(zipError){state.batchZipBlob=null;logMessage("[ZIP PREP ERROR] "+(zipError.message||zipError));}}
-  setStatus(`Processing complete: ${completed} completed, ${failed} failed.`);$("startBtn").disabled=false;$("downloadBtn").disabled=completed===0;updateExportButton();
-  if(completed>0){state.inspectingSigned=true;$("sigDrag").style.display="none";$("initDrag").style.display="none";try{await renderCurrentFile();}catch(previewError){logMessage("[SIGNED PREVIEW ERROR] "+(previewError.message||previewError));setStatus("Signing completed, but the signed PDF preview could not be rendered: "+(previewError.message||previewError));}}
+  if(!state.selectedFiles.length){alert("Please select PDF document(s) first.");return;}
+  if(!state.libraryReady){alert(state.libraryError||"PDF libraries are not ready.");return;}
+  const rules=getRules();
+  if(!state.sigBytes&&!rules.initialsText){alert("Add a signature or enter initials before starting.");return;}
+  if(!state.placementApplied){alert("Please click PLACE SIGNATURES first, then review the batch before processing.");return;}
+
+  state.signedOutputs.clear();
+  state.failedDocuments=[];
+  renderFailedDocuments();
+  state.zip=new (requireLibrary("JSZip"))();
+  state.batchZipBlob=null;
+
+  let completed=0,failed=0;
+  $("startBtn").disabled=true;
+  $("downloadBtn").disabled=true;
+  setText("countCompleted","0");
+  setText("countFailed","0");
+  $("progressFill").style.width="0%";
+
+  for(let i=0;i<state.selectedFiles.length;i++){
+    const file=state.selectedFiles[i];
+    setStatus(`Processing ${i+1}/${state.selectedFiles.length}: ${file.name}`);
+    try{
+      const bytes=await signPdf(file,rules,i);
+      state.signedOutputs.set(file.name,bytes);
+      state.zip.file(file.name,bytes);
+      completed++;
+      setText("countCompleted",completed);
+      logMessage(`[SUCCESS] ${file.name}`);
+    }catch(error){
+      failed++;
+      const classified=classifyProcessingError(error);
+      state.failedDocuments.push({name:file.name,reason:classified.reason,code:classified.code});
+      setText("countFailed",failed);
+      renderFailedDocuments();
+      logMessage(`[FAILED] ${file.name}: ${classified.reason}`);
+    }
+    $("progressFill").style.width=`${Math.round(((i+1)/state.selectedFiles.length)*100)}%`;
+  }
+
+  if(completed>0 && isFolderMode()){
+    try{state.batchZipBlob=await state.zip.generateAsync({type:"blob",compression:"STORE"});}
+    catch(zipError){state.batchZipBlob=null;logMessage("[ZIP PREP ERROR] "+(zipError.message||zipError));}
+  }
+
+  setStatus(`Processing complete: ${completed} completed, ${failed} failed.`);
+  $("startBtn").disabled=false;
+  $("downloadBtn").disabled=completed===0;
+  updateExportButton();
+  renderFailedDocuments();
+
+  if(completed>0){
+    state.inspectingSigned=true;
+    $("sigDrag").style.display="none";
+    $("initDrag").style.display="none";
+    try{
+      const firstSuccessfulIndex=state.selectedFiles.findIndex(file=>state.signedOutputs.has(file.name));
+      if(firstSuccessfulIndex>=0)state.currentFileIndex=firstSuccessfulIndex;
+      state.currentPage=1;
+      await renderCurrentFile();
+    }catch(previewError){
+      logMessage("[SIGNED PREVIEW ERROR] "+(previewError.message||previewError));
+      setStatus("Signing completed, but the signed PDF preview could not be rendered: "+(previewError.message||previewError));
+    }
+  }
 }
 function updateExportButton(){
   const folder=isFolderMode();
@@ -470,25 +737,190 @@ async function downloadSignedOutput(){
   }
 }
 
-function clearBatchOutputOnly(){state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;state.inspectingSigned=false;showBox("sigDrag");showBox("initDrag");setStatus("Signed output cleared. Source PDF documents remain loaded.");logMessage("Signed PDF output cleared.");if(state.selectedFiles.length)renderCurrentFile().catch(err=>logMessage("[CLEAR PREVIEW ERROR] "+err.message));}
+function clearBatchOutputOnly(){
+  state.signedOutputs.clear();
+  state.failedDocuments=[];
+  state.zip=window.JSZip?new window.JSZip():null;
+  state.batchZipBlob=null;
+  renderFailedDocuments();
+  setText("countCompleted","0");
+  setText("countFailed","0");
+  $("progressFill").style.width="0%";
+  $("downloadBtn").disabled=true;
+  state.inspectingSigned=false;
+  showBox("sigDrag");
+  showBox("initDrag");
+  setStatus("Signed output cleared. Source PDF documents remain loaded.");
+  logMessage("Signed PDF output and failed-document report cleared.");
+  if(state.selectedFiles.length)renderCurrentFile().catch(err=>logMessage("[CLEAR PREVIEW ERROR] "+err.message));
+}
 function clearDownloadedOutput(){
   /* This is a full scanning-side reset: generated output, pages, current PDF, counters and placement are cleared. */
-  state.signedOutputs.clear();state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;state.batchZipBlob=null;state.importMode=$("docSelectMode")?.value||"pdf-single";state.selectedFiles=[];state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.loadedPdf=null;state.pdfPage=null;state.inspectingSigned=false;state.placement.sig.page=1;state.placement.init.page=1;state.drag=null;
-  $("fileInputContainer").innerHTML="";$("countDetected").innerText="0";$("countCompleted").innerText="0";$("countFailed").innerText="0";$("progressFill").style.width="0%";$("downloadBtn").disabled=true;$("startBtn").disabled=false;hideBox("sigDrag");hideBox("initDrag");clearPreview();toggleDocInputMode();setStatus("Ready for a new PDF. Scanning page cleared.");logMessage("Generated output and scanning page cleared. Ready for a new PDF.");}
+  state.signedOutputs.clear();
+  state.failedDocuments=[];
+  state.zip=window.JSZip?new window.JSZip():null;
+  state.batchZipBlob=null;
+  state.importMode=$("docSelectMode")?.value||"pdf-single";
+  state.selectedFiles=[];
+  state.currentFileIndex=0;
+  state.currentPage=1;
+  state.totalPages=1;
+  state.loadedPdf=null;
+  state.pdfPage=null;
+  state.inspectingSigned=false;
+  state.placementApplied=false;
+  state.pagePlacements.clear();
+  state.placement.sig.page=1;
+  state.placement.init.page=1;
+  state.drag=null;
+  renderFailedDocuments();
+  $("fileInputContainer").innerHTML="";
+  $("countDetected").innerText="0";
+  $("countCompleted").innerText="0";
+  $("countFailed").innerText="0";
+  $("progressFill").style.width="0%";
+  $("downloadBtn").disabled=true;
+  $("startBtn").disabled=false;
+  hideBox("sigDrag");
+  hideBox("initDrag");
+  clearPreview();
+  toggleDocInputMode();
+  setStatus("Ready for a new PDF. Scanning page cleared.");
+  logMessage("Generated output, failed-document report and scanning page cleared. Ready for a new PDF.");
+}
 function clearAllSourceDocuments(){clearDownloadedOutput();$("sigImageInput").value="";setStatus("All source PDFs and generated output cleared.");logMessage("All source PDFs cleared.");}
-
-/* ---------- AI scanner: PDF only ---------- */
-async function extractPdfText(file){requireLibrary("pdfjsLib");const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){const page=await pdf.getPage(i),content=await page.getTextContent();pages.push({page:i,text:content.items.map(x=>x.str).join(" ")});}return pages;}
-async function scanDocuments(){const category=$("aiCategorySelect").value,patterns={amount:/(?:R|\$|€|USD|ZAR)\s?\d+(?:,\d{3})*(?:\.\d{2})?/gi,date:/(?:due|expire|deadline|dated?|by)\s*:?\s?\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}/gi,legal:/(?:penalty|liable|liability|forfeit|breach|indemnify|non-refundable|interest)/gi},alerts=[];for(const file of state.selectedFiles){const pages=await extractPdfText(file);pages.forEach(p=>{if(category==="all"||category==="amount")(p.text.match(patterns.amount)||[]).forEach(x=>alerts.push(`${file.name} — Page ${p.page}: ${x}`));if(category==="all"||category==="date")(p.text.match(patterns.date)||[]).forEach(x=>alerts.push(`${file.name} — Page ${p.page}: ${x}`));if(category==="all"||category==="legal")if((p.text.match(patterns.legal)||[]).length)alerts.push(`${file.name} — Page ${p.page}: legal-risk terms detected`);});}$("aiResultsBox").innerHTML=alerts.length?alerts.map(x=>`<div class="risk-card">${escapeHtml(x)}</div>`).join(""):`<div style="color:var(--nebula-green)">✅ No matching patterns found.</div>`;}
-async function runAiHighRiskScan(){if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");$("aiResultsBox").innerHTML="🔍 Scanning PDFs...";try{await scanDocuments();}catch(e){$("aiResultsBox").innerHTML=`<div style="color:var(--nebula-orange)">Scan failed: ${escapeHtml(e.message)}</div>`;}}
-async function executeAiCustomQuery(){const prompt=$("aiCustomPrompt").value.trim().toLowerCase();if(!prompt)return alert("Please enter a search query.");if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");const results=[];for(const file of state.selectedFiles){const pages=await extractPdfText(file);pages.forEach(p=>{const idx=p.text.toLowerCase().indexOf(prompt);if(idx>=0)results.push(`${file.name} — Page ${p.page}: ${p.text.slice(Math.max(0,idx-50),idx+prompt.length+100)}`);});}$("aiResultsBox").innerHTML=results.length?results.map(x=>`<div class="risk-card highlight">${escapeHtml(x)}</div>`).join(""):`No text matching "${escapeHtml(prompt)}" was found.`;}
+/* ---------- Mr AUDIT ASSISTANT: PDF-only local audit scanner ---------- */
+async function extractPdfText(file){
+  requireLibrary("pdfjsLib");
+  const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,pages=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const page=await pdf.getPage(i),content=await page.getTextContent();
+    pages.push({page:i,text:content.items.map(x=>x.str).join(" ")});
+  }
+  return pages;
+}
+function parseRandAmount(value){
+  let cleaned=String(value).trim().replace(/^R\s*/i,"").replace(/\s/g,"");
+  if(!cleaned)return null;
+  if(cleaned.includes(",")&&cleaned.includes(".")){
+    cleaned=cleaned.replace(/,/g,"");
+  }else if(cleaned.includes(",")){
+    const parts=cleaned.split(",");
+    cleaned=parts[parts.length-1].length===2?parts.slice(0,-1).join("")+"."+parts[parts.length-1]:parts.join("");
+  }
+  const n=Number(cleaned);
+  return Number.isFinite(n)?n:null;
+}
+function formatRand(amount){return `R${Number(amount).toLocaleString("en-ZA",{minimumFractionDigits:2,maximumFractionDigits:2})}`;}
+function getAuditPatterns(){
+  return {
+    amount:/\bR\s?(?:\d{1,3}(?:(?:,|\s)\d{3})+|\d+)(?:[.,]\d{2})?\b/gi,
+    date:/(?:due|expire|expires|expiration|deadline|dated|payment date|renewal date|valid until|valid through|by)\s*:?\s*\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}/gi,
+    legal:/(?:penalty|liable|liability|forfeit|breach|indemnif(?:y|ies|ied)|non-refundable|interest|damages|legal action|default|claim)/gi,
+    keywords:/(?:invoice|payment|approval|approved|confidential|urgent|audit|compliance|authorization|purchase order|PO number|student number|account number)/gi,
+    vendor:/(?:vendor|supplier|service provider|contractor|company|customer|client)\s*(?:name|:)?\s*[A-Z][A-Za-z0-9&' ._-]{2,60}/g,
+    terms:/(?:termination|terminate|renewal|renew|notice period|obligation|obligations|shall|must|agreement|contract term|governing law|force majeure|payment terms|delivery terms)/gi
+  };
+}
+function makeContext(text,index,length=180){
+  const start=Math.max(0,index-75),end=Math.min(text.length,index+length);
+  return text.slice(start,end).replace(/\s+/g," ").trim();
+}
+function riskFor(type,amount){
+  if(type==="amount"&&amount>=50000)return "High Risk";
+  if(type==="legal")return "Legal Risk";
+  if(type==="date")return "Due Date Risk";
+  if(type==="amount"&&amount>=10000)return "High Risk";
+  if(type==="vendor"||type==="terms")return "Review";
+  return "Audit Finding";
+}
+async function scanDocuments(){
+  const category=$("aiCategorySelect").value;
+  const threshold=Math.max(0,Number($("aiAmountThreshold").value)||0);
+  const patterns=getAuditPatterns(),alerts=[];
+  for(const file of state.selectedFiles){
+    const pages=await extractPdfText(file);
+    pages.forEach(p=>{
+      const text=p.text||"";
+      const addMatches=(regex,type,title,descriptionBuilder,amountFilter=false)=>{
+        regex.lastIndex=0;
+        let match;
+        while((match=regex.exec(text))!==null){
+          const raw=match[0],amount=type==="amount"?parseRandAmount(raw):null;if(type==="amount"&&!/^\s*R\s?\d/.test(raw))continue;
+          if(amountFilter&&(amount===null||amount<threshold))continue;
+          alerts.push({type,title,description:descriptionBuilder(raw,text,match.index,amount),file:file.name,page:p.page,amount,risk:riskFor(type,amount)});
+          if(match.index===regex.lastIndex)regex.lastIndex++;
+        }
+      };
+      if(category==="all"||category==="amount")
+        addMatches(patterns.amount,"amount","Financial Amount Detected",(raw,text,index,amount)=>`${raw} meets or exceeds the configured amount threshold of ${formatRand(threshold)}. Context: ${makeContext(text,index)}`,true);
+      if(category==="all"||category==="date")
+        addMatches(patterns.date,"date","Due Date / Expiration Clause",(raw,text,index)=>`Date-related clause found: ${raw}. Context: ${makeContext(text,index)}`);
+      if(category==="all"||category==="legal")
+        addMatches(patterns.legal,"legal","Legal Liability / Penalty Term",(raw,text,index)=>`Potential legal-risk term "${raw}" found. Context: ${makeContext(text,index)}`);
+      if(category==="keywords")
+        addMatches(patterns.keywords,"keyword","Audit Keyword / Phrase",(raw,text,index)=>`Keyword or phrase "${raw}" found. Context: ${makeContext(text,index)}`);
+      if(category==="vendor")
+        addMatches(patterns.vendor,"vendor","Vendor / Supplier Reference",(raw,text,index)=>`Possible vendor, supplier or service-provider reference found. Context: ${makeContext(text,index)}`);
+      if(category==="terms")
+        addMatches(patterns.terms,"terms","Contract Term / Obligation",(raw,text,index)=>`Contract term or obligation "${raw}" found. Context: ${makeContext(text,index)}`);
+    });
+  }
+  const unique=[],seen=new Set();
+  for(const item of alerts){
+    const key=`${item.file}|${item.page}|${item.type}|${item.description}`;
+    if(seen.has(key))continue;
+    seen.add(key);unique.push(item);
+  }
+  const box=$("aiResultsBox");
+  if(!unique.length){
+    box.innerHTML=`<div style="color:var(--nebula-green)">✅ No matching findings were found for the selected category${category==="amount"?` at or above ${formatRand(threshold)}`:""}.</div>`;
+    return;
+  }
+  box.innerHTML=unique.map((item,index)=>`
+    <div class="ai-result-item ${escapeHtml(item.type)}">
+      <div class="ai-result-title">${index+1}. ${escapeHtml(item.title)}${item.amount!==null?`<span class="ai-result-amount">${formatRand(item.amount)}</span>`:""}</div>
+      <div class="ai-result-description">${escapeHtml(item.description)}</div>
+      <div class="ai-result-meta"><strong>File:</strong> ${escapeHtml(item.file)} &nbsp; | &nbsp; <strong>Page:</strong> ${escapeHtml(item.page)}
+        <span class="ai-risk-badge ${item.risk==="Audit Finding"?"low":item.risk==="Review"?"medium":""}">${escapeHtml(item.risk)}</span>
+      </div>
+    </div>`).join("");
+}
+async function runAiHighRiskScan(){
+  if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");
+  $("aiResultsBox").innerHTML="🔍 Scanning PDFs...";
+  try{await scanDocuments();}catch(e){$("aiResultsBox").innerHTML=`<div style="color:var(--nebula-orange)">Scan failed: ${escapeHtml(e.message)}</div>`;}
+}
+async function executeAiCustomQuery(){
+  const prompt=$("aiCustomPrompt").value.trim().toLowerCase();
+  if(!prompt)return alert("Please enter a search query.");
+  if(!state.selectedFiles.length)return alert("Please upload PDF document(s) first.");
+  $("aiResultsBox").innerHTML="🔍 Searching document text...";
+  try{
+    const results=[];
+    for(const file of state.selectedFiles){
+      const pages=await extractPdfText(file);
+      pages.forEach(p=>{
+        const text=p.text||"",lower=text.toLowerCase();let from=0;
+        while(true){
+          const idx=lower.indexOf(prompt,from);if(idx<0)break;
+          results.push({file:file.name,page:p.page,context:makeContext(text,idx,prompt.length+130)});
+          from=idx+Math.max(1,prompt.length);
+        }
+      });
+    }
+    $("aiResultsBox").innerHTML=results.length
+      ? results.map((x,i)=>`<div class="ai-result-item keyword"><div class="ai-result-title">${i+1}. Custom Query Match</div><div class="ai-result-description">${escapeHtml(x.context)}</div><div class="ai-result-meta"><strong>File:</strong> ${escapeHtml(x.file)} &nbsp; | &nbsp; <strong>Page:</strong> ${escapeHtml(x.page)} <span class="ai-risk-badge low">Match Found</span></div></div>`).join("")
+      : `<div style="color:var(--nebula-green)">No text matching "${escapeHtml(prompt)}" was found.</div>`;
+  }catch(e){$("aiResultsBox").innerHTML=`<div style="color:var(--nebula-orange)">Search failed: ${escapeHtml(e.message)}</div>`;}
+}
 
 /* ---------- signature file ---------- */
-async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.test(file.type))throw new Error("Please select a PNG or JPG signature image.");const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the signature image."));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error("The selected signature image could not be decoded."));image.src=dataUrl;});const canvas=document.createElement("canvas");canvas.width=Math.max(1,img.naturalWidth);canvas.height=Math.max(1,img.naturalHeight);const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<data.data.length;i+=4)if(data.data[i]>210&&data.data[i+1]>210&&data.data[i+2]>210)data.data[i+3]=0;ctx.putImageData(data,0,0);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create transparent signature PNG.")),"image/png"));state.sigBytes=await blob.arrayBuffer();state.placement.sig.page=state.currentPage;showBox("sigDrag");await repositionBoxes();logMessage(`Signature image loaded: ${file.name}`);}catch(error){state.sigBytes=null;hideBox("sigDrag");logMessage("[SIGNATURE LOAD ERROR] "+(error.message||error));alert(error.message||error);}}
+async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.test(file.type))throw new Error("Please select a PNG or JPG signature image.");const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the signature image."));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error("The selected signature image could not be decoded."));image.src=dataUrl;});const canvas=document.createElement("canvas");canvas.width=Math.max(1,img.naturalWidth);canvas.height=Math.max(1,img.naturalHeight);const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<data.data.length;i+=4)if(data.data[i]>210&&data.data[i+1]>210&&data.data[i+2]>210)data.data[i+3]=0;ctx.putImageData(data,0,0);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create transparent signature PNG.")),"image/png"));state.sigBytes=await blob.arrayBuffer();showBox("sigDrag");await repositionBoxes();logMessage(`Signature image loaded: ${file.name}`);}catch(error){state.sigBytes=null;hideBox("sigDrag");logMessage("[SIGNATURE LOAD ERROR] "+(error.message||error));alert(error.message||error);}}
 
 /* ---------- startup ---------- */
-function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});}
-window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
+function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});updateAiFilterNote();renderFailedDocuments();}
+window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.placeSignatures=placeSignatures;window.deletePlacement=deletePlacement;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
 
 (async function init(){try{wireEvents();toggleSigMode();toggleRuleInputs("sig");toggleRuleInputs("init");toggleDocInputMode();logMessage("--- Nebula PDF Batch Signer starting ---");try{await loadBrowserLibraries();}catch(e){logMessage("[LIBRARY LOAD] "+(e.message||e));}const ok=await waitForLibraries();if(ok){state.zip=new window.JSZip();logMessage("PDF libraries loaded successfully.");setStatus("Ready. PDF only — select Single PDF or PDF Batch.");}else setStatus(state.libraryError);}catch(e){state.libraryError=e.message||String(e);logMessage("[STARTUP ERROR] "+state.libraryError);setStatus(state.libraryError);}})();
 </script>
