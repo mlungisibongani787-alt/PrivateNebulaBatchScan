@@ -654,7 +654,8 @@ async function processBatch(){
     try{
       const bytes=await signPdf(file,rules,i);
       state.signedOutputs.set(file.name,bytes);
-      state.zip.file(file.name,bytes);
+      // Successful PDFs go only into SIGNED DOCUMENTS.
+      state.zip.file(`SIGNED DOCUMENTS/${file.name}`,bytes);
       completed++;
       setText("countCompleted",completed);
       logMessage(`[SUCCESS] ${file.name}`);
@@ -662,6 +663,8 @@ async function processBatch(){
       failed++;
       const classified=classifyProcessingError(error);
       state.failedDocuments.push({name:file.name,reason:classified.reason,code:classified.code});
+      // Failed PDFs go only into FAILED SIGN DOCUMENTS.
+      state.zip.file(`FAILED SIGN DOCUMENTS/${file.name}`,await file.arrayBuffer());
       setText("countFailed",failed);
       renderFailedDocuments();
       logMessage(`[FAILED] ${file.name}: ${classified.reason}`);
