@@ -87,6 +87,11 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
 .overlay-delete:hover{filter:brightness(1.15)}
 .flex-row{display:flex;gap:8px}.flex-row>div{flex:1}
 .nav-controls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;background:var(--nebula-bg);padding:8px;border-radius:4px;border:1px solid var(--border);flex-wrap:wrap}
+.page-rotation-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:stretch;margin-top:8px;background:var(--nebula-bg);padding:8px;border-radius:4px;border:1px solid var(--border)}
+.rotation-group{padding:6px;border:1px solid var(--border);border-radius:4px}.rotation-group.single{border-color:var(--nebula-yellow)}.rotation-group.all{border-color:var(--nebula-purple)}
+.rotation-title{font-size:.68rem;font-weight:700;margin-bottom:5px;color:var(--nebula-yellow);text-align:center}.rotation-group.all .rotation-title{color:var(--nebula-purple)}
+.rotation-buttons{display:flex;gap:5px;flex-wrap:wrap}.rotation-buttons .btn-sm{min-width:80px}.rotation-status{display:flex;align-items:center;justify-content:center;min-width:105px;padding:6px;border:1px solid var(--nebula-green);border-radius:4px;color:var(--nebula-green);font-size:.7rem;font-weight:700;text-align:center}
+@media(max-width:800px){.page-rotation-controls{grid-template-columns:1fr}.rotation-status{min-height:34px}}
 .source-status{margin-top:7px;padding:7px 9px;border:1px solid var(--border);border-radius:4px;background:#0b0e12;color:var(--text-dim);font-size:.75rem}
 .source-status strong{color:var(--nebula-yellow)}
 .upload-note{font-size:.7rem;color:var(--text-dim);margin-top:5px}
@@ -232,6 +237,25 @@ button.btn-main:disabled{background:#3a4454;cursor:not-allowed;color:#888}
     <div style="font-size:.8rem;color:var(--text-dim)" id="navPageTracker">Page 1 / 1</div>
   </div>
 
+  <div class="page-rotation-controls" id="pageRotationControls">
+    <div class="rotation-group single">
+      <div class="rotation-title">ROTATE CURRENT PAGE</div>
+      <div class="rotation-buttons">
+        <button type="button" class="btn-sm" onclick="rotateCurrentPage(-90)" title="Rotate only the page currently being reviewed">↶ Left 90°</button>
+        <button type="button" class="btn-sm" onclick="rotateCurrentPage(90)" title="Rotate only the page currently being reviewed">↷ Right 90°</button>
+        <button type="button" class="btn-sm" onclick="resetCurrentPageRotation()" title="Reset only the current page rotation">Reset</button>
+      </div>
+    </div>
+    <div class="rotation-group all">
+      <div class="rotation-title">ROTATE ALL PAGES IN CURRENT PDF</div>
+      <div class="rotation-buttons">
+        <button type="button" class="btn-sm" onclick="rotateAllPages(-90)" title="Rotate every page in the current PDF">↶ All Left 90°</button>
+        <button type="button" class="btn-sm" onclick="rotateAllPages(90)" title="Rotate every page in the current PDF">↷ All Right 90°</button>
+      </div>
+    </div>
+    <div class="rotation-status" id="rotationStatus">Page rotation: 0°</div>
+  </div>
+
   <div class="ai-scanner-panel" id="aiPanel">
     <div class="ai-scanner-header">
       <h4>🤖 Mr AUDIT ASSISTANT</h4>
@@ -318,6 +342,7 @@ const state = {
   sigBytes: null,
   placementApplied: false,
   pagePlacements: new Map(),
+  pageRotations: new Map(),
   placement: {
     sig: { x: 60 / A4_W, y: 550 / A4_H, w: 120 / A4_W, h: 40 / A4_H, page: 1 },
     init: { x: 350 / A4_W, y: 560 / A4_H, w: 60 / A4_W, h: 25 / A4_H, page: 1 }
@@ -476,7 +501,7 @@ async function handleFileSelection(event){
   const files=Array.from(event.target.files||[]).filter(isPdf);
   state.importMode=$("docSelectMode").value;
   state.selectedFiles=state.importMode==="pdf-single"?files.slice(0,1):files;
-  state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.inspectingSigned=false;state.placementApplied=false;state.pagePlacements.clear();state.signedOutputs.clear();state.failedDocuments=[];state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;
+  state.currentFileIndex=0;state.currentPage=1;state.totalPages=1;state.inspectingSigned=false;state.placementApplied=false;state.pagePlacements.clear();state.pageRotations.clear();state.signedOutputs.clear();state.failedDocuments=[];state.zip=window.JSZip?new window.JSZip():null;state.batchZipBlob=null;
   renderFailedDocuments();setText("countDetected",state.selectedFiles.length);setText("countCompleted","0");setText("countFailed","0");$("progressFill").style.width="0%";$("downloadBtn").disabled=true;
   if(!state.selectedFiles.length){setStatus("No valid PDF selected.");return;}
   setStatus(`Loaded ${state.selectedFiles.length} PDF document(s).`);updateExportButton();await renderCurrentFile();
@@ -486,11 +511,56 @@ async function handleFileSelection(event){
 function activePageRect(){const canvas=$("pdfCanvas");return canvas&&canvas.style.display!=="none"?canvas.getBoundingClientRect():null;}
 function activePageElement(){return $("pdfCanvas");}
 function updateTracker(){setText("navPageTracker",`Page ${state.currentPage} / ${state.totalPages}`);setText("navFileTracker",`File ${state.selectedFiles.length?state.currentFileIndex+1:0} / ${state.selectedFiles.length}`);}
+function normalizeRotation(value){let r=Number(value)||0;r=((r%360)+360)%360;return r===90||r===180||r===270?r:0;}
+function rotationKey(fileIndex=state.currentFileIndex,page=state.currentPage){return placementKey(fileIndex,page);}
+function getPageRotation(fileIndex=state.currentFileIndex,page=state.currentPage){return normalizeRotation(state.pageRotations.get(rotationKey(fileIndex,page))||0);}
+function setPageRotation(value,fileIndex=state.currentFileIndex,page=state.currentPage){const r=normalizeRotation(value);const key=rotationKey(fileIndex,page);if(r===0)state.pageRotations.delete(key);else state.pageRotations.set(key,r);return r;}
+function rotationDeltaForPlacement(delta){return normalizeRotation(delta);}
+function rotatePlacementClockwise(p,delta){if(!p)return null;let result=clonePlacement(p),turns=normalizeRotation(delta)/90;for(let i=0;i<turns;i++)result={x:Math.max(0,Math.min(1,1-result.y-result.h)),y:Math.max(0,Math.min(1,result.x)),w:result.h,h:result.w,page:result.page};return result;}
+function adjustPlacementsForRotation(fileIndex,page,delta,allPages=false){
+  const targets=allPages?Array.from({length:state.totalPages},(_,i)=>i+1):[page];
+  for(const pageNumber of targets){
+    const key=placementKey(fileIndex,pageNumber),entry=state.pagePlacements.get(key);
+    if(entry){for(const kind of ["sig","init"]){if(Object.prototype.hasOwnProperty.call(entry,kind)&&entry[kind])entry[kind]=rotatePlacementClockwise(entry[kind],delta);}}
+  }
+  if(!state.placementApplied&&fileIndex===0&&page===1){for(const kind of ["sig","init"]){if(state.placement[kind])state.placement[kind]=rotatePlacementClockwise(state.placement[kind],delta);}}
+}
+function updateRotationStatus(){const r=getPageRotation();setText("rotationStatus",`Page rotation: ${r}°`);}
+async function rotateCurrentPage(delta){
+  if(!state.selectedFiles.length||!state.loadedPdf){alert("Please load a PDF document first.");return;}
+  if(state.inspectingSigned){alert("The signed preview cannot be rotated. Rotate the source PDF before processing.");return;}
+  const current=getPageRotation(),next=normalizeRotation(current+Number(delta));
+  adjustPlacementsForRotation(state.currentFileIndex,state.currentPage,rotationDeltaForPlacement(delta),false);
+  setPageRotation(next);
+  await renderPdfPage(state.currentPage);
+  logMessage(`PAGE ROTATION: File ${state.currentFileIndex+1}, Page ${state.currentPage} rotated to ${next}°. Existing signature/initials placement was kept with the page.`);
+}
+async function resetCurrentPageRotation(){
+  if(!state.selectedFiles.length||!state.loadedPdf){alert("Please load a PDF document first.");return;}
+  if(state.inspectingSigned){alert("The signed preview cannot be changed. Rotate the source PDF before processing.");return;}
+  const current=getPageRotation(),delta=normalizeRotation(-current);
+  if(current!==0){adjustPlacementsForRotation(state.currentFileIndex,state.currentPage,delta,false);}
+  setPageRotation(0);
+  await renderPdfPage(state.currentPage);
+  logMessage(`PAGE ROTATION RESET: File ${state.currentFileIndex+1}, Page ${state.currentPage} is back to its original orientation.`);
+}
+async function rotateAllPages(delta){
+  if(!state.selectedFiles.length||!state.loadedPdf){alert("Please load a PDF document first.");return;}
+  if(state.inspectingSigned){alert("The signed preview cannot be rotated. Rotate the source PDF before processing.");return;}
+  const change=rotationDeltaForPlacement(delta);
+  for(let page=1;page<=state.totalPages;page++){
+    const next=normalizeRotation(getPageRotation(state.currentFileIndex,page)+Number(delta));
+    adjustPlacementsForRotation(state.currentFileIndex,page,change,false);
+    setPageRotation(next,state.currentFileIndex,page);
+  }
+  await renderPdfPage(state.currentPage);
+  logMessage(`ALL PAGE ROTATION: File ${state.currentFileIndex+1} — all ${state.totalPages} page(s) rotated ${Number(delta)>0?"right":"left"} 90°.`);
+}
 async function renderPdfPage(pageNumber){
-  if(!state.loadedPdf)return;const page=await state.loadedPdf.getPage(pageNumber);state.pdfPage=page;const canvas=$("pdfCanvas"),wrapper=$("previewWrapper"),base=page.getViewport({scale:1});
-  const scale=Math.min(Math.max(1,wrapper.clientWidth-8)/base.width,Math.max(1,wrapper.clientHeight-8)/base.height);const viewport=page.getViewport({scale});
+  if(!state.loadedPdf)return;const page=await state.loadedPdf.getPage(pageNumber);state.pdfPage=page;const canvas=$("pdfCanvas"),wrapper=$("previewWrapper"),userRotation=state.inspectingSigned?0:getPageRotation(state.currentFileIndex,pageNumber),effectiveRotation=normalizeRotation((Number(page.rotate)||0)+userRotation),base=page.getViewport({scale:1,rotation:effectiveRotation});
+  const scale=Math.min(Math.max(1,wrapper.clientWidth-8)/base.width,Math.max(1,wrapper.clientHeight-8)/base.height);const viewport=page.getViewport({scale,rotation:effectiveRotation});
   canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);canvas.style.width=viewport.width+"px";canvas.style.height=viewport.height+"px";
-  await page.render({canvasContext:canvas.getContext("2d",{alpha:false}),viewport}).promise;state.currentPage=pageNumber;updateTracker();await repositionBoxes();
+  await page.render({canvasContext:canvas.getContext("2d",{alpha:false}),viewport}).promise;state.currentPage=pageNumber;updateTracker();updateRotationStatus();await repositionBoxes();
 }
 async function renderCurrentFile(){
   if(!state.selectedFiles.length)return;const file=state.selectedFiles[state.currentFileIndex];if(!file)return;state.currentSourceType="pdf";updateTracker();
@@ -618,11 +688,23 @@ async function signPdf(file,rules,fileIndex){
   const PDFLib=requireLibrary("PDFLib"),doc=await PDFLib.PDFDocument.load(await file.arrayBuffer()),pages=doc.getPages();
   const sigImage=state.sigBytes?await doc.embedPng(state.sigBytes):null;const initImage=rules.initialsText?await doc.embedPng(await createInitialsPng(rules.initialsText,rules.initFont)):null;
   pages.forEach((page,index)=>{const pageNumber=index+1,{width,height}=page.getSize();
+    const baseRotation=normalizeRotation(page.getRotation?.().angle||0),userRotation=getPageRotation(fileIndex,pageNumber),finalRotation=normalizeRotation(baseRotation+userRotation);
+    if(userRotation!==0)page.setRotation(PDFLib.degrees(finalRotation));
     const entry=getPagePlacements(fileIndex,pageNumber)||{};
     const sigPlacement=Object.prototype.hasOwnProperty.call(entry,"sig")?entry.sig:(state.placementApplied?null:state.placement.sig);
     const initPlacement=Object.prototype.hasOwnProperty.call(entry,"init")?entry.init:(state.placementApplied?null:state.placement.init);
-    if(sigImage&&sigPlacement&&pageMatchesRule(pageNumber,pages.length,rules.sig)){const p=sigPlacement,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(sigImage,{x,y,width:w,height:h});}
-    if(initImage&&initPlacement&&pageMatchesRule(pageNumber,pages.length,rules.init)){const p=initPlacement,x=Math.max(0,Math.min(width,p.x*width)),y=Math.max(0,Math.min(height,height-(p.y+p.h)*height)),w=Math.max(1,Math.min(width-x,p.w*width)),h=Math.max(1,Math.min(height-y,p.h*height));page.drawImage(initImage,{x,y,width:w,height:h});}
+    const drawPlacement=(image,p)=>{
+      if(!image||!p)return;
+      let x,y,w,h;
+      if(finalRotation===90){x=(1-p.y-p.h)*width;y=p.x*height;w=p.h*width;h=p.w*height;}
+      else if(finalRotation===180){x=(1-p.x-p.w)*width;y=p.y*height;w=p.w*width;h=p.h*height;}
+      else if(finalRotation===270){x=p.y*width;y=(1-p.x-p.w)*height;w=p.h*width;h=p.w*height;}
+      else{x=p.x*width;y=(1-p.y-p.h)*height;w=p.w*width;h=p.h*height;}
+      x=Math.max(0,Math.min(width,x));y=Math.max(0,Math.min(height,y));w=Math.max(1,Math.min(width-x,w));h=Math.max(1,Math.min(height-y,h));
+      page.drawImage(image,{x,y,width:w,height:h});
+    };
+    if(sigImage&&sigPlacement&&pageMatchesRule(pageNumber,pages.length,rules.sig))drawPlacement(sigImage,sigPlacement);
+    if(initImage&&initPlacement&&pageMatchesRule(pageNumber,pages.length,rules.init))drawPlacement(initImage,initPlacement);
   });
   return await doc.save();
 }
@@ -773,6 +855,7 @@ function clearDownloadedOutput(){
   state.inspectingSigned=false;
   state.placementApplied=false;
   state.pagePlacements.clear();
+  state.pageRotations.clear();
   state.placement.sig.page=1;
   state.placement.init.page=1;
   state.drag=null;
@@ -923,7 +1006,7 @@ async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.
 
 /* ---------- startup ---------- */
 function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});updateAiFilterNote();renderFailedDocuments();}
-window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.placeSignatures=placeSignatures;window.deletePlacement=deletePlacement;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
+window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.rotateCurrentPage=rotateCurrentPage;window.resetCurrentPageRotation=resetCurrentPageRotation;window.rotateAllPages=rotateAllPages;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.placeSignatures=placeSignatures;window.deletePlacement=deletePlacement;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
 
 (async function init(){try{wireEvents();toggleSigMode();toggleRuleInputs("sig");toggleRuleInputs("init");toggleDocInputMode();logMessage("--- Nebula PDF Batch Signer starting ---");try{await loadBrowserLibraries();}catch(e){logMessage("[LIBRARY LOAD] "+(e.message||e));}const ok=await waitForLibraries();if(ok){state.zip=new window.JSZip();logMessage("PDF libraries loaded successfully.");setStatus("Ready. PDF only — select Single PDF or PDF Batch.");}else setStatus(state.libraryError);}catch(e){state.libraryError=e.message||String(e);logMessage("[STARTUP ERROR] "+state.libraryError);setStatus(state.libraryError);}})();
 </script>
