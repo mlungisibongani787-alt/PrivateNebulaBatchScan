@@ -418,17 +418,88 @@ async function waitForLibraries(timeoutMs=10000){
   state.libraryError=`Missing browser libraries: ${missing.join(", ")}. Check internet/CDN access and reload.`;state.libraryReady=false;logMessage("[LIBRARY ERROR] "+state.libraryError);setStatus(state.libraryError);return false;
 }
 
+/* ---------- saved signature / initials (browser-local) ---------- */
+const SAVED_SIGNATURE_KEY="nebulaBatchSignerSavedSignature";
+const SAVED_INITIALS_KEY="nebulaBatchSignerSavedInitials";
+
+function bytesToBase64(bytes){
+  let binary="";
+  const chunkSize=0x8000;
+  for(let i=0;i<bytes.length;i+=chunkSize)
+    binary+=String.fromCharCode(...bytes.subarray(i,i+chunkSize));
+  return btoa(binary);
+}
+function base64ToBytes(base64){
+  const binary=atob(base64),bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+function saveSignatureToBrowser(){
+  if(!state.sigBytes)return;
+  try{
+    localStorage.setItem(SAVED_SIGNATURE_KEY,bytesToBase64(new Uint8Array(state.sigBytes)));
+  }catch(error){
+    logMessage("[SAVED SIGNATURE] Could not save signature in this browser: "+(error.message||error));
+  }
+}
+function loadSavedSignatureFromBrowser(){
+  try{
+    const saved=localStorage.getItem(SAVED_SIGNATURE_KEY);
+    if(!saved)return false;
+    state.sigBytes=base64ToBytes(saved).buffer;
+    showBox("sigDrag");
+    logMessage("Saved signature restored from this browser.");
+    return true;
+  }catch(error){
+    try{localStorage.removeItem(SAVED_SIGNATURE_KEY);}catch(_){}
+    state.sigBytes=null;
+    logMessage("[SAVED SIGNATURE] Saved signature could not be restored.");
+    return false;
+  }
+}
+function saveInitialsToBrowser(value){
+  try{
+    const text=String(value||"").trim();
+    if(text)localStorage.setItem(SAVED_INITIALS_KEY,text);
+    else localStorage.removeItem(SAVED_INITIALS_KEY);
+  }catch(error){
+    logMessage("[SAVED INITIALS] Could not save initials in this browser: "+(error.message||error));
+  }
+}
+function loadSavedInitialsFromBrowser(){
+  try{
+    const saved=(localStorage.getItem(SAVED_INITIALS_KEY)||"").trim();
+    if(!saved)return false;
+    $("initialsText").value=saved;
+    updateInitialsLabel();
+    logMessage("Saved initials restored from this browser.");
+    return true;
+  }catch(error){
+    logMessage("[SAVED INITIALS] Could not restore saved initials: "+(error.message||error));
+    return false;
+  }
+}
+function clearSavedSignatureFromBrowser(){
+  try{localStorage.removeItem(SAVED_SIGNATURE_KEY);}
+  catch(error){logMessage("[SAVED SIGNATURE] Could not remove saved signature: "+(error.message||error));}
+}
+function clearSavedInitialsFromBrowser(){
+  try{localStorage.removeItem(SAVED_INITIALS_KEY);}
+  catch(error){logMessage("[SAVED INITIALS] Could not remove saved initials: "+(error.message||error));}
+}
+
 /* ---------- manual pen signature ---------- */
 const drawCanvas=$("drawCanvas");
 const drawCtx=drawCanvas?.getContext("2d");
 let drawActive=false,canvasZoom=1;
 function clearDrawCanvas(){if(drawCtx&&drawCanvas)drawCtx.clearRect(0,0,drawCanvas.width,drawCanvas.height);canvasZoom=1;if(drawCanvas)drawCanvas.style.transform="scale(1)";state.sigBytes=null;showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Manual pen signature cleared. Signature and initials blocks remain on the PDF page.");}
 function zoomCanvas(factor){canvasZoom=Math.max(.5,Math.min(3,canvasZoom*factor));if(drawCanvas)drawCanvas.style.transform=`scale(${canvasZoom})`;}
-async function saveDrawnSignature(){if(!drawCanvas)return;const blob=await new Promise(resolve=>drawCanvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create signature image.");state.sigBytes=await blob.arrayBuffer();showBox("sigDrag");$("drawBox").style.display="none";await repositionBoxes();logMessage("Manual pen signature saved.");}
+async function saveDrawnSignature(){if(!drawCanvas)return;const blob=await new Promise(resolve=>drawCanvas.toBlob(resolve,"image/png"));if(!blob)throw new Error("Could not create signature image.");state.sigBytes=await blob.arrayBuffer();saveSignatureToBrowser();showBox("sigDrag");$("drawBox").style.display="none";await repositionBoxes();logMessage("Manual pen signature saved.");}
 function clearSignatureOnly(){
   clearDrawCanvas();
   if($("sigImageInput"))$("sigImageInput").value="";
   state.sigBytes=null;
+  clearSavedSignatureFromBrowser();
   showBox("sigDrag");
   showBox("initDrag");
   if($("sigMode")){ $("sigMode").value="draw"; toggleSigMode(); }
@@ -437,7 +508,7 @@ function clearSignatureOnly(){
   logMessage("Signature cleared. Manual Pen Signature panel opened for a new signature.");
   setStatus("Signature cleared. Draw a new signature using Manual Pen Signature.");
 }
-function clearInitialsOnly(){$("initialsText").value="";const label=$("initDrag").querySelector(".overlay-label");if(label)label.innerText="";showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Initials cleared. Empty initials block remains on the PDF page.");}
+function clearInitialsOnly(){clearSavedInitialsFromBrowser();$("initialsText").value="";const label=$("initDrag").querySelector(".overlay-label");if(label)label.innerText="";showBox("sigDrag");showBox("initDrag");repositionBoxes();logMessage("Initials cleared. Empty initials block remains on the PDF page.");}
 function recenterSignature(){const p=currentPlacementFor("sig")||state.placement.sig;state.placement.sig={x:.5-p.w/2,y:.78-p.h/2,w:p.w,h:p.h,page:state.currentPage};if(state.placementApplied)setPagePlacement("sig",state.placement.sig);showBox("sigDrag");repositionBoxes();}
 function recenterInitials(){const p=currentPlacementFor("init")||state.placement.init;state.placement.init={x:.5-p.w/2,y:.72-p.h/2,w:p.w,h:p.h,page:state.currentPage};if(state.placementApplied)setPagePlacement("init",state.placement.init);showBox("initDrag");repositionBoxes();}
 function resizeSignatureBox(){const width=Math.max(10,Number($("sigW").value)||120),height=Math.max(10,Number($("sigH").value)||40),page=activePageRect(),p=currentPlacementFor("sig")||state.placement.sig;if(page){state.placement.sig={...p,w:Math.min(1,width/page.width),h:Math.min(1,height/page.height),page:state.currentPage};if(state.placementApplied)setPagePlacement("sig",state.placement.sig);}repositionBoxes();}
@@ -459,6 +530,7 @@ function resizeInitialsBox(){
 }
 function updateInitialsLabel(){
   const value=$("initialsText").value.trim();
+  saveInitialsToBrowser(value);
   const label=$("initDrag").querySelector(".overlay-label");if(label)label.innerText=value;
   showBox("sigDrag");
   showBox("initDrag");
@@ -1002,10 +1074,10 @@ async function executeAiCustomQuery(){
 }
 
 /* ---------- signature file ---------- */
-async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.test(file.type))throw new Error("Please select a PNG or JPG signature image.");const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the signature image."));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error("The selected signature image could not be decoded."));image.src=dataUrl;});const canvas=document.createElement("canvas");canvas.width=Math.max(1,img.naturalWidth);canvas.height=Math.max(1,img.naturalHeight);const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<data.data.length;i+=4)if(data.data[i]>210&&data.data[i+1]>210&&data.data[i+2]>210)data.data[i+3]=0;ctx.putImageData(data,0,0);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create transparent signature PNG.")),"image/png"));state.sigBytes=await blob.arrayBuffer();showBox("sigDrag");await repositionBoxes();logMessage(`Signature image loaded: ${file.name}`);}catch(error){state.sigBytes=null;hideBox("sigDrag");logMessage("[SIGNATURE LOAD ERROR] "+(error.message||error));alert(error.message||error);}}
+async function loadSignatureFile(file){try{if(!file||!/^image\/(png|jpeg|jpg)$/.test(file.type))throw new Error("Please select a PNG or JPG signature image.");const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the signature image."));reader.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error("The selected signature image could not be decoded."));image.src=dataUrl;});const canvas=document.createElement("canvas");canvas.width=Math.max(1,img.naturalWidth);canvas.height=Math.max(1,img.naturalHeight);const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=0;i<data.data.length;i+=4)if(data.data[i]>210&&data.data[i+1]>210&&data.data[i+2]>210)data.data[i+3]=0;ctx.putImageData(data,0,0);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not create transparent signature PNG.")),"image/png"));state.sigBytes=await blob.arrayBuffer();saveSignatureToBrowser();showBox("sigDrag");await repositionBoxes();logMessage(`Signature image loaded: ${file.name}`);}catch(error){state.sigBytes=null;hideBox("sigDrag");logMessage("[SIGNATURE LOAD ERROR] "+(error.message||error));alert(error.message||error);}}
 
 /* ---------- startup ---------- */
-function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});updateAiFilterNote();renderFailedDocuments();}
+function wireEvents(){$("sigImageInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)loadSignatureFile(file);});window.addEventListener("resize",async()=>{if(!state.selectedFiles.length)return;try{await renderPdfPage(state.currentPage);}catch(e){logMessage("[RESIZE ERROR] "+e.message);}});updateAiFilterNote();renderFailedDocuments();loadSavedSignatureFromBrowser();loadSavedInitialsFromBrowser();}
 window.zoomCanvas=zoomCanvas;window.clearDrawCanvas=clearDrawCanvas;window.saveDrawnSignature=saveDrawnSignature;window.clearSignatureOnly=clearSignatureOnly;window.clearInitialsOnly=clearInitialsOnly;window.recenterSignature=recenterSignature;window.recenterInitials=recenterInitials;window.resizeSignatureBox=resizeSignatureBox;window.resizeInitialsBox=resizeInitialsBox;window.updateInitialsLabel=updateInitialsLabel;window.toggleDocInputMode=toggleDocInputMode;window.toggleSigMode=toggleSigMode;window.toggleRuleInputs=toggleRuleInputs;window.toggleAiPanelSize=toggleAiPanelSize;window.clearAiScanResults=clearAiScanResults;window.prevPage=prevPage;window.nextPage=nextPage;window.rotateCurrentPage=rotateCurrentPage;window.resetCurrentPageRotation=resetCurrentPageRotation;window.rotateAllPages=rotateAllPages;window.prevDocument=prevDocument;window.nextDocument=nextDocument;window.placeSignatures=placeSignatures;window.deletePlacement=deletePlacement;window.processBatch=processBatch;window.downloadSignedOutput=downloadSignedOutput;window.clearBatchOutputOnly=clearBatchOutputOnly;window.clearDownloadedOutput=clearDownloadedOutput;window.clearAllSourceDocuments=clearAllSourceDocuments;window.runAiHighRiskScan=runAiHighRiskScan;window.executeAiCustomQuery=executeAiCustomQuery;
 
 (async function init(){try{wireEvents();toggleSigMode();toggleRuleInputs("sig");toggleRuleInputs("init");toggleDocInputMode();logMessage("--- Nebula PDF Batch Signer starting ---");try{await loadBrowserLibraries();}catch(e){logMessage("[LIBRARY LOAD] "+(e.message||e));}const ok=await waitForLibraries();if(ok){state.zip=new window.JSZip();logMessage("PDF libraries loaded successfully.");setStatus("Ready. PDF only — select Single PDF or PDF Batch.");}else setStatus(state.libraryError);}catch(e){state.libraryError=e.message||String(e);logMessage("[STARTUP ERROR] "+state.libraryError);setStatus(state.libraryError);}})();
