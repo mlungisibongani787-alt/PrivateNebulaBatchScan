@@ -701,7 +701,7 @@ async function signPdf(file,rules,fileIndex){
       else if(finalRotation===270){x=p.y*width;y=(1-p.x-p.w)*height;w=p.h*width;h=p.w*height;}
       else{x=p.x*width;y=(1-p.y-p.h)*height;w=p.w*width;h=p.h*height;}
       x=Math.max(0,Math.min(width,x));y=Math.max(0,Math.min(height,y));w=Math.max(1,Math.min(width-x,w));h=Math.max(1,Math.min(height-y,h));
-      page.drawImage(image,{x,y,width:w,height:h});
+      page.drawImage(image,{x,y,width:w,height:h,rotate:PDFLib.degrees(-finalRotation)});
     };
     if(sigImage&&sigPlacement&&pageMatchesRule(pageNumber,pages.length,rules.sig))drawPlacement(sigImage,sigPlacement);
     if(initImage&&initPlacement&&pageMatchesRule(pageNumber,pages.length,rules.init))drawPlacement(initImage,initPlacement);
